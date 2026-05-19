@@ -1,0 +1,141 @@
+@import "tailwindcss";
+
+:root {
+  /* VELA Brand Colors */
+  --obsidian: #0A0A0A;
+  --champagne: #C9A96E;
+  --ivory: #F7F5F2;
+  --deep-teal: #1A4A4A;
+  --amber-gold: #B8943C;
+
+  /* Semantic */
+  --background: var(--ivory);
+  --foreground: var(--obsidian);
+}
+
+@theme inline {
+  --color-obsidian: var(--obsidian);
+  --color-champagne: var(--champagne);
+  --color-ivory: var(--ivory);
+  --color-deep-teal: var(--deep-teal);
+  --color-amber-gold: var(--amber-gold);
+
+  --font-cormorant: var(--font-cormorant);
+  --font-dm-sans: var(--font-dm-sans);
+  --font-dm-mono: var(--font-dm-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-dm-sans);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ivory);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--champagne);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--amber-gold);
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(247, 245, 242, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Gold gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, var(--champagne) 0%, var(--amber-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Subtle gold border glow on hover */
+.border-glow-hover {
+  transition: all 0.3s ease;
+}
+
+.border-glow-hover:hover {
+  box-shadow: 0 0 30px rgba(201, 169, 110, 0.2);
+}
+
+/* Infinite scroll animation */
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll-left {
+  animation: scroll-left 40s linear infinite;
+}
+
+/* Number counter animation */
+@keyframes count-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-count-up {
+  animation: count-up 1.5s ease-out forwards;
+}
+
+/* Fade up animation class */
+.fade-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Giant watermark text */
+.watermark-text {
+  font-size: clamp(80px, 20vw, 400px);
+  line-height: 0.8;
+  letter-spacing: -0.05em;
+  color: rgba(10, 10, 10, 0.03);
+  user-select: none;
+}
+
+/* Hide scrollbar utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
