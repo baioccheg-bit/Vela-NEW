@@ -1,977 +1,763 @@
+/* Hallmark · macrostructure: Marquee Hero · genre: modern-minimal
+ * theme: studied-DNA (source: https://www.usehallmark.com/examples/tally/)
+ * REVISION 2 · cleaner pass: no gradients, wordmark-only brand, demo-grade dashboard.
+ * paper-band: light cool · display-style: geometric-sans · accent-hue: deep-teal
+ * companion: none · nav: N5 Floating pill · footer: Ft5 Statement
+ * motion: pulse · marquee · transition-only (no JS motion library)
+ * studied: yes · DNA-source: url
+ */
 "use client";
 
-import { motion, useScroll, useTransform, useInView, useSpring, AnimatePresence } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
+import "./home.css";
 
-// Animation variants
-const fadeInUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } },
-};
-
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.12, delayChildren: 0.1 },
-  },
-};
-
-// VELA Flame Icon
-function FlameIcon({ className = "w-6 h-6" }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2c0 0-2 2-2 5 0 1.5 1 2.5 1 4 0 0-2-1-3-3 0 0-1 2 0 5 1 3 4 4 4 7 0 0 3-2 3-6 0-1.5-.5-2.5-.5-3.5 0 0 1.5 2 1.5 4.5 0 0 2-2 2-5 0-4-3-8-6-8z" />
-    </svg>
-  );
-}
-
-// Arrow Icon
-function ArrowIcon({ className = "w-5 h-5" }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M7 17L17 7M17 7H7M17 7V17" />
-    </svg>
-  );
-}
-
-// Lightning Icon
-function LightningIcon({ className = "w-4 h-4" }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-    </svg>
-  );
-}
-
-// Navbar Component
-function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const navLinks = [
-    { label: "Plataforma", href: "/plataforma" },
-    { label: "Agentes", href: "/agentes" },
-    { label: "Planos", href: "/planos" },
-    { label: "Sobre", href: "/sobre" },
-  ];
+export default function Home() {
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <>
-      <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ${
-          scrolled
-            ? "w-[95%] max-w-6xl py-2.5"
-            : "w-[95%] max-w-6xl py-3"
-        }`}
-      >
-        <div className={`rounded-2xl transition-all duration-500 ${
-          scrolled
-            ? "glass shadow-xl shadow-obsidian/10"
-            : "bg-ivory/90 shadow-lg shadow-obsidian/5"
-        }`}>
-          <div className="px-6 flex items-center justify-between">
-            {/* Logo */}
-            <motion.a
-              href="/"
-              className="flex items-center gap-2.5 group"
-              whileHover={{ scale: 1.02 }}
-            >
-              <div className="w-9 h-9 rounded-xl bg-champagne flex items-center justify-center text-obsidian shadow-sm group-hover:shadow-md transition-shadow">
-                <FlameIcon className="w-5 h-5" />
-              </div>
-              <span className="font-cormorant text-xl font-bold tracking-tight text-obsidian">
-                VELA
-              </span>
-            </motion.a>
+      {/* ───────── nav · N5 Floating pill (wordmark only, no icon) ───────── */}
+      <nav className="nav" aria-label="Principal">
+        <a href="/" className="nav__brand">Vela</a>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-1">
-              {navLinks.map((link) => (
-                <motion.a
-                  key={link.label}
-                  href={link.href}
-                  className="px-4 py-2 text-sm text-obsidian/70 hover:text-obsidian rounded-full hover:bg-obsidian/5 transition-all duration-300"
-                  whileHover={{ y: -1 }}
-                >
-                  {link.label}
-                </motion.a>
-              ))}
-            </div>
-
-            {/* Auth Buttons */}
-            <div className="hidden md:flex items-center gap-3">
-              <motion.a
-                href="/entrar"
-                className="px-4 py-2 text-sm text-obsidian/70 hover:text-obsidian rounded-full hover:bg-obsidian/5 transition-all duration-300"
-                whileHover={{ scale: 1.02 }}
-              >
-                Entrar
-              </motion.a>
-              <motion.a
-                href="/solicitar-acesso"
-                className="px-5 py-2.5 bg-champagne text-obsidian text-sm font-medium rounded-full hover:bg-amber-gold transition-all duration-300 shadow-sm hover:shadow-md"
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                Solicitar acesso
-              </motion.a>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              className="md:hidden p-2 -mr-2"
-              onClick={() => setMobileOpen(!mobileOpen)}
-              aria-label="Menu"
-            >
-              <div className="w-5 h-5 flex flex-col justify-center gap-1">
-                <span
-                  className={`h-0.5 w-full bg-obsidian transition-all duration-300 ${
-                    mobileOpen ? "rotate-45 translate-y-[3px]" : ""
-                  }`}
-                />
-                <span
-                  className={`h-0.5 w-full bg-obsidian transition-all duration-300 ${
-                    mobileOpen ? "opacity-0" : ""
-                  }`}
-                />
-                <span
-                  className={`h-0.5 w-full bg-obsidian transition-all duration-300 ${
-                    mobileOpen ? "-rotate-45 -translate-y-[3px]" : ""
-                  }`}
-                />
-              </div>
-            </button>
-          </div>
+        <div className="nav__links">
+          <a className="nav__link" href="#workbench">Plataforma</a>
+          <a className="nav__link" href="#features">Agentes</a>
+          <a className="nav__link" href="#pricing">Preços</a>
+          <a className="nav__link" href="#faq">FAQ</a>
         </div>
-      </motion.nav>
 
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-40 bg-ivory pt-24 px-6 md:hidden"
-          >
-            <div className="flex flex-col gap-2">
-              {navLinks.map((link, i) => (
-                <motion.a
-                  key={link.label}
-                  href={link.href}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.08 }}
-                  className="text-xl font-cormorant text-obsidian py-3 px-4 rounded-xl hover:bg-obsidian/5 transition-colors"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  {link.label}
-                </motion.a>
-              ))}
-              <div className="h-px bg-obsidian/10 my-4" />
-              <a
-                href="/entrar"
-                className="text-base text-obsidian/70 py-3 px-4"
-                onClick={() => setMobileOpen(false)}
-              >
-                Entrar
-              </a>
-              <a
-                href="/solicitar-acesso"
-                className="mx-4 mt-2 px-6 py-3.5 bg-champagne text-obsidian text-base font-medium rounded-full text-center"
-                onClick={() => setMobileOpen(false)}
-              >
-                Solicitar acesso
-              </a>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
-  );
-}
+        <span className="nav__divider" aria-hidden />
+        <a className="nav__signin" href="/entrar">Entrar</a>
+        <a className="nav__cta" href="/solicitar-acesso">
+          Começar <span aria-hidden>→</span>
+        </a>
 
-// Hero Component
-function Hero() {
-  return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 pb-16">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-ivory via-ivory to-white" />
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-champagne/10 rounded-full blur-[120px]" />
-
-      <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
-        {/* Pill Badge */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-champagne/10 border border-champagne/20 mb-8"
+        <button
+          type="button"
+          className="nav__burger"
+          aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((v) => !v)}
         >
-          <span className="w-2 h-2 rounded-full bg-champagne animate-pulse" />
-          <span className="text-sm text-obsidian/80 font-medium">Teste 30 dias grátis</span>
-        </motion.div>
-
-        {/* Headline */}
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1 }}
-          className="font-cormorant text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold leading-[1.1] tracking-tight text-obsidian"
-        >
-          Sua clínica no piloto<br />inteligente.
-        </motion.h1>
-
-        {/* Subheadline */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="mt-6 text-lg sm:text-xl text-obsidian/60 max-w-2xl mx-auto leading-relaxed"
-        >
-          Impulsione o sucesso da sua clínica com IA que elimina tarefas manuais e acelera o faturamento.
-        </motion.p>
-
-        {/* CTA Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="mt-10 flex flex-wrap items-center justify-center gap-4"
-        >
-          <motion.a
-            href="/plataforma"
-            className="group px-7 py-3.5 bg-champagne text-obsidian text-base font-medium rounded-full hover:bg-amber-gold transition-all duration-300 shadow-lg shadow-champagne/25 flex items-center gap-2"
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            Começar agora
-            <ArrowIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </motion.a>
-          <motion.a
-            href="/agentes"
-            className="group px-7 py-3.5 border border-obsidian/20 text-obsidian text-base font-medium rounded-full hover:border-champagne hover:bg-champagne/5 transition-all duration-300 flex items-center gap-2"
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            Conhecer agentes
-            <ArrowIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </motion.a>
-        </motion.div>
-
-        {/* Product Mockup */}
-        <motion.div
-          initial={{ opacity: 0, y: 60, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 1.2, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-16 relative"
-        >
-          <div className="relative max-w-5xl mx-auto">
-            {/* Phone mockup - left */}
-            <motion.div
-              initial={{ opacity: 0, x: -60, y: 40 }}
-              animate={{ opacity: 1, x: 0, y: 0 }}
-              transition={{ duration: 1, delay: 0.8 }}
-              className="absolute -left-4 md:-left-12 top-8 md:top-16 z-20 w-48 md:w-64"
-            >
-              <div className="bg-obsidian rounded-3xl p-3 shadow-2xl">
-                <div className="bg-ivory rounded-2xl p-4">
-                  <div className="flex items-center gap-2 mb-3 pb-3 border-b border-obsidian/10">
-                    <div className="w-8 h-8 rounded-full bg-champagne flex items-center justify-center">
-                      <span className="text-xs font-bold text-obsidian">J</span>
-                    </div>
-                    <div>
-                      <div className="text-xs font-semibold text-obsidian">Júlia</div>
-                      <div className="text-[10px] text-obsidian/50">Agente VELA</div>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="bg-champagne/20 rounded-lg p-2 text-[10px] text-obsidian/80">
-                      Olá! Confirmamos sua consulta para amanhã às 14h ✨
-                    </div>
-                    <div className="bg-obsidian/5 rounded-lg p-2 text-[10px] text-obsidian/60 text-right">
-                      Perfeito, obrigado!
-                    </div>
-                    <div className="bg-champagne/20 rounded-lg p-2 text-[10px] text-obsidian/80">
-                      Link de pagamento: R$ 350,00
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Dashboard mockup - main */}
-            <div className="bg-obsidian rounded-2xl shadow-2xl shadow-obsidian/20 overflow-hidden gold-glow">
-              {/* Browser header */}
-              <div className="flex items-center gap-2 px-4 py-3 bg-obsidian/80 border-b border-ivory/10">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-obsidian/50" />
-                  <div className="w-3 h-3 rounded-full bg-obsidian/50" />
-                  <div className="w-3 h-3 rounded-full bg-obsidian/50" />
-                </div>
-                <div className="flex-1 text-center">
-                  <div className="inline-block px-3 py-1 bg-ivory/5 rounded-md text-[10px] text-ivory/40 font-dm-mono">
-                    app.vela.com.br/financeiro
-                  </div>
-                </div>
-              </div>
-
-              {/* Dashboard content */}
-              <div className="p-6 md:p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-cormorant text-ivory">Faturamento</h3>
-                  <span className="text-xs text-ivory/50 font-dm-mono">Últimos 7 dias</span>
-                </div>
-
-                {/* Billing table */}
-                <div className="space-y-3">
-                  {[
-                    { patient: "Ana Silva", value: "R$ 450,00", status: "Paga", statusColor: "bg-champagne" },
-                    { patient: "Carlos Mendes", value: "R$ 280,00", status: "Pendente", statusColor: "bg-deep-teal" },
-                    { patient: "Beatriz Costa", value: "R$ 520,00", status: "Paga", statusColor: "bg-champagne" },
-                    { patient: "Roberto Lima", value: "R$ 350,00", status: "Atrasada", statusColor: "bg-amber-gold" },
-                  ].map((item, i) => (
-                    <motion.div
-                      key={item.patient}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 1 + i * 0.1 }}
-                      className="flex items-center justify-between p-3 rounded-lg bg-ivory/5 hover:bg-ivory/10 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-ivory/10 flex items-center justify-center text-xs font-medium text-ivory/70">
-                          {item.patient.charAt(0)}
-                        </div>
-                        <span className="text-sm text-ivory/80">{item.patient}</span>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <span className="text-sm font-dm-mono text-ivory">{item.value}</span>
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium text-obsidian ${item.statusColor}`}>
-                          {item.status}
-                        </span>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
-// Feature Cards Component
-function FeatureCards() {
-  return (
-    <section className="py-16 md:py-24">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Plataforma Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="group relative p-8 md:p-10 rounded-3xl bg-ivory border border-obsidian/5 hover:border-champagne/30 transition-all duration-500 overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-champagne/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative z-10">
-              <div className="w-12 h-12 rounded-xl bg-champagne/10 flex items-center justify-center text-champagne mb-6">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                </svg>
-              </div>
-              <h3 className="font-cormorant text-3xl text-obsidian mb-4">Plataforma</h3>
-              <p className="text-obsidian/60 leading-relaxed mb-6">
-                Automatize cobranças, centralize prontuários e agendamentos e aumente a eficiência da sua clínica.
-              </p>
-              <a href="/plataforma" className="inline-flex items-center gap-2 text-champagne font-medium hover:gap-3 transition-all">
-                Saiba mais <ArrowIcon className="w-4 h-4" />
-              </a>
-
-              {/* Calendar mockup */}
-              <div className="mt-8 p-4 rounded-xl bg-white border border-obsidian/5">
-                <div className="grid grid-cols-7 gap-1 text-center text-[10px] text-obsidian/40 mb-2">
-                  {["D", "S", "T", "Q", "Q", "S", "S"].map((d) => (
-                    <span key={d}>{d}</span>
-                  ))}
-                </div>
-                <div className="grid grid-cols-7 gap-1">
-                  {Array.from({ length: 31 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className={`aspect-square rounded-md text-[10px] flex items-center justify-center ${
-                        [5, 12, 19, 26].includes(i) ? "bg-champagne text-obsidian font-medium" :
-                        [8, 15, 22].includes(i) ? "bg-deep-teal/20 text-deep-teal" :
-                        "text-obsidian/60"
-                      }`}
-                    >
-                      {i + 1}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Agentes Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="group relative p-8 md:p-10 rounded-3xl bg-ivory border border-obsidian/5 hover:border-champagne/30 transition-all duration-500 overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-champagne/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative z-10">
-              <div className="w-12 h-12 rounded-xl bg-champagne/10 flex items-center justify-center text-champagne mb-6">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="font-cormorant text-3xl text-obsidian mb-4">Agentes VELA</h3>
-              <p className="text-obsidian/60 leading-relaxed mb-6">
-                Os novos membros da sua equipe: trabalham 7 dias por semana, executando tarefas com mais velocidade e menos falhas.
-              </p>
-              <a href="/agentes" className="inline-flex items-center gap-2 text-champagne font-medium hover:gap-3 transition-all">
-                Saiba mais <ArrowIcon className="w-4 h-4" />
-              </a>
-
-              {/* Agent portrait */}
-              <div className="mt-8 p-4 rounded-xl bg-white border border-obsidian/5 flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-champagne to-amber-gold flex items-center justify-center text-2xl font-cormorant font-bold text-obsidian">
-                  J
-                </div>
-                <div>
-                  <div className="font-medium text-obsidian">Júlia</div>
-                  <div className="text-xs text-obsidian/50">Agente Digital</div>
-                  <div className="text-[10px] text-champagne mt-1">Especialista em conversão de agendamentos</div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// Automation Flow Component
-function AutomationFlow() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    if (isInView) {
-      const target = 8699824;
-      const duration = 2500;
-      const steps = 60;
-      const increment = target / steps;
-      let current = 0;
-
-      const timer = setInterval(() => {
-        current += increment;
-        if (current >= target) {
-          setCount(target);
-          clearInterval(timer);
-        } else {
-          setCount(Math.floor(current));
-        }
-      }, duration / steps);
-
-      return () => clearInterval(timer);
-    }
-  }, [isInView]);
-
-  const flowNodes = [
-    "Atendimento agendado",
-    "Lembrete de atendimento",
-    "Link de pagamento",
-    "Lembrete de pagamento",
-    "Pagamento verificado",
-    "Nota fiscal enviada",
-  ];
-
-  return (
-    <section ref={ref} className="py-24 md:py-32 bg-white">
-      <div className="max-w-5xl mx-auto px-6 text-center">
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="font-cormorant text-3xl md:text-4xl lg:text-5xl text-obsidian mb-16"
-        >
-          A primeira plataforma de automações<br />para clínicas do Brasil
-        </motion.h2>
-
-        {/* Flow diagram */}
-        <div className="relative mb-16">
-          <svg className="w-full max-w-2xl mx-auto" viewBox="0 0 400 320">
-            <defs>
-              <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#C9A96E" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="#C9A96E" stopOpacity="1" />
-              </linearGradient>
-            </defs>
-
-            {/* Connecting lines */}
-            <motion.path
-              initial={{ pathLength: 0, opacity: 0 }}
-              whileInView={{ pathLength: 1, opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.5, delay: 0.3 }}
-              d="M50 40 L200 160 M350 40 L200 160 M50 100 L200 160 M350 100 L200 160 M50 160 L200 160 M350 160 L200 160"
-              stroke="url(#gradient)"
-              strokeWidth="1.5"
-              fill="none"
-            />
-
-            {/* Flow nodes */}
-            {flowNodes.map((node, i) => {
-              const x = i % 2 === 0 ? 50 : 350;
-              const y = 40 + (i * 24);
-              return (
-                <motion.g
-                  key={node}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.5 + i * 0.1 }}
-                >
-                  <circle cx={x} cy={y} r="16" fill="#F7F5F2" stroke="#C9A96E" strokeWidth="1.5" />
-                  {/* Lightning icon as path */}
-                  <path
-                    d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"
-                    fill="#C9A96E"
-                    transform={`translate(${x - 8}, ${y - 8}) scale(0.65)`}
-                  />
-                  <text
-                    x={x + (i % 2 === 0 ? -20 : 20)}
-                    y={y + 5}
-                    textAnchor={i % 2 === 0 ? "end" : "start"}
-                    className="text-[11px] fill-obsidian"
-                    style={{ fontFamily: "var(--font-dm-sans)" }}
-                  >
-                    {node}
-                  </text>
-                </motion.g>
-              );
-            })}
-
-            {/* Center point */}
-            <motion.circle
-              cx="200"
-              cy="160"
-              r="24"
-              fill="#C9A96E"
-              initial={{ scale: 0 }}
-              whileInView={{ scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 1, type: "spring" }}
-            />
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+            {menuOpen ? (
+              <path d="M6 6l12 12M6 18L18 6" strokeLinecap="round" />
+            ) : (
+              <path d="M4 7h16M4 17h16" strokeLinecap="round" />
+            )}
           </svg>
-        </div>
+        </button>
+      </nav>
 
-        {/* Big number */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
-        >
-          <div className="font-dm-mono text-5xl md:text-7xl lg:text-8xl text-obsidian tabular-nums">
-            {count.toLocaleString("pt-BR")}
-          </div>
-          <p className="mt-4 text-obsidian/60">
-            Tarefas automatizadas para mais de 1.000 clientes
-          </p>
-        </motion.div>
+      <div className={`mobile-sheet ${menuOpen ? "is-open" : ""}`}>
+        <a href="#workbench" onClick={() => setMenuOpen(false)}>Plataforma</a>
+        <a href="#features" onClick={() => setMenuOpen(false)}>Agentes</a>
+        <a href="#pricing" onClick={() => setMenuOpen(false)}>Preços</a>
+        <a href="#faq" onClick={() => setMenuOpen(false)}>FAQ</a>
+        <span className="divider" />
+        <a href="/entrar" onClick={() => setMenuOpen(false)}>Entrar</a>
+        <a href="/solicitar-acesso" onClick={() => setMenuOpen(false)}>Começar →</a>
       </div>
-    </section>
-  );
-}
 
-// Testimonials Marquee Component
-function TestimonialsMarquee() {
-  const testimonials = [
-    { quote: "Com a VELA sabemos exatamente o faturamento em tempo real.", author: "Dr. Vinicius", specialty: "Oftalmologista" },
-    { quote: "A equipe da VELA treinou nossa equipe e trouxe segurança a todos.", author: "Fernanda M.", specialty: "Psicóloga" },
-    { quote: "Com a VELA temos gráficos de pacientes e faturamento. Poupa muito trabalho.", author: "Dr. Fabiano", specialty: "Médico" },
-    { quote: "Eu perdia tempo com planilhas. Com a VELA foi uma virada de chave.", author: "Camila T.", specialty: "Psicóloga" },
-    { quote: "Depois da VELA conseguimos abrir a segunda unidade da clínica.", author: "Mirla C.", specialty: "Fonoaudióloga" },
-    { quote: "Plataforma ágil, rápida e com custo-benefício excelente.", author: "Laís S.", specialty: "Fonoaudióloga" },
-  ];
-
-  return (
-    <section className="py-16 overflow-hidden bg-white">
-      <div className="flex animate-scroll-left gap-6">
-        {[...testimonials, ...testimonials].map((t, i) => (
-          <div
-            key={`${t.author}-${i}`}
-            className="flex-shrink-0 w-80 p-6 rounded-2xl bg-ivory border border-obsidian/5"
-          >
-            <p className="text-obsidian/80 leading-relaxed mb-4">"{t.quote}"</p>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-champagne to-amber-gold flex items-center justify-center text-obsidian font-cormorant font-bold text-sm">
-                {t.author.charAt(0)}
-              </div>
-              <div>
-                <div className="text-sm font-medium text-obsidian">{t.author}</div>
-                <div className="text-xs text-obsidian/50">{t.specialty}</div>
-              </div>
-            </div>
+      {/* ───────── hero · Marquee Hero ───────── */}
+      <section className="hero">
+        <div className="container">
+          <div className="hero__status" role="status">
+            <span className="dot" aria-hidden />
+            <span>EM PRODUÇÃO DESDE 2024 · OPERANDO EM CLÍNICAS BRASILEIRAS</span>
           </div>
-        ))}
-      </div>
-    </section>
-  );
-}
 
-// Split Section Component
-function SplitSection() {
-  return (
-    <section className="py-24 md:py-32 bg-ivory">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
-          {/* Left - Photo placeholder */}
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="relative h-[500px] rounded-3xl overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-champagne/40 via-amber-gold/30 to-deep-teal/20" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-32 h-32 rounded-full bg-obsidian/10 blur-2xl" />
-            </div>
-          </motion.div>
-
-          {/* Right - Content card */}
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="p-8 md:p-10 rounded-3xl bg-white border border-obsidian/5"
-          >
-            <h2 className="font-cormorant text-3xl md:text-4xl text-obsidian mb-6">
-              Se seu negócio vai bem, o nosso também.
-            </h2>
-            <p className="text-obsidian/60 leading-relaxed mb-8">
-              Desenvolvemos uma plataforma que automatiza rotinas e oferece visibilidade total da operação. Com os nossos Agentes VELA sua gestão ganha agilidade e precisão.
-            </p>
-
-            <ul className="space-y-4 mb-8">
-              {[
-                { title: "Produto", desc: "Inovação faz parte do nosso dia a dia." },
-                { title: "Atendimento", desc: "Nosso time é uma extensão do seu." },
-                { title: "Personalização", desc: "Adaptamos a plataforma à sua clínica." },
-              ].map((item) => (
-                <li key={item.title} className="flex items-start gap-3">
-                  <div className="w-5 h-5 rounded-full bg-champagne/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg className="w-3 h-3 text-champagne" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div>
-                    <span className="font-medium text-obsidian">{item.title}.</span>
-                    <span className="text-obsidian/60"> {item.desc}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-
-            <motion.a
-              href="/solicitar-acesso"
-              className="px-7 py-3.5 bg-champagne text-obsidian font-medium rounded-full hover:bg-amber-gold transition-all duration-300 inline-block"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              Solicitar acesso
-            </motion.a>
-          </motion.div>
-        </div>
-
-        {/* Tech company logos */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="flex flex-wrap items-center justify-center gap-8 md:gap-12 pt-8 border-t border-obsidian/10"
-        >
-          {["google", "microsoft", "apple", "amazon", "meta", "youtube"].map((logo) => (
-            <motion.img
-              key={logo}
-              src={`/logos/${logo}.svg`}
-              alt={`${logo.charAt(0).toUpperCase() + logo.slice(1)} logo`}
-              className="h-8 md:h-10 w-auto object-contain opacity-40 hover:opacity-70 transition-opacity duration-300"
-              whileHover={{ scale: 1.05 }}
-            />
-          ))}
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
-// AI Agents Section (Dark)
-function AIAgentsDark() {
-  const agents = [
-    { quote: "Automatizei completamente o agendamento da minha clínica", tag: "CLIENTES VELA", author: "Dra. Patricia R.", specialty: "Dermatologista" },
-    { quote: "Como resolvi cobranças e notas fiscais sem esforço", tag: "CLIENTES VELA", author: "Dr. Marcos V.", specialty: "Clínico Geral" },
-    { quote: "Minha clínica rumo a uma economia de R$50mil em 12 meses", tag: "CLIENTES VELA", author: "Dra. Juliana M.", specialty: "Fisioterapeuta" },
-    { quote: "Melhorei a relação com pacientes profissionalizando cobranças", tag: "CLIENTES VELA", author: "Dra. Amanda S.", specialty: "Psicóloga" },
-  ];
-
-  return (
-    <section className="py-24 md:py-32 bg-deep-teal overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-16">
-          <div>
-            <div className="flex items-center gap-2 text-champagne mb-4">
-              <ArrowIcon className="w-5 h-5 rotate-45" />
-              <span className="text-sm font-dm-mono uppercase tracking-wider">Os Agentes VELA</span>
-            </div>
-            <h2 className="font-cormorant text-3xl md:text-4xl lg:text-5xl text-ivory max-w-xl">
-              Seja qual for o volume da sua clínica, os agentes VELA acompanham seu crescimento.
-            </h2>
-          </div>
-          <motion.a
-            href="/agentes"
-            className="self-start md:self-auto px-6 py-3 border border-champagne text-champagne rounded-full hover:bg-champagne hover:text-obsidian transition-all duration-300 inline-block"
-            whileHover={{ scale: 1.03 }}
-          >
-            Conhecer agentes
-          </motion.a>
-        </div>
-
-        {/* Agent cards - horizontal scroll */}
-        <div className="flex gap-6 overflow-x-auto pb-8 -mx-6 px-6 md:mx-0 md:px-0 scrollbar-hide">
-          {agents.map((agent, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: 40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="flex-shrink-0 w-80 md:w-96 p-6 rounded-2xl bg-obsidian/50 border border-ivory/10"
-            >
-              <div className="text-4xl text-champagne mb-4">❝</div>
-              <p className="text-ivory font-cormorant text-xl leading-relaxed mb-6">
-                {agent.quote}
+          <div className="hero__layout">
+            <div>
+              <h1 className="hero__h1">
+                A sua clínica opera <span className="italic-accent">sozinha</span>.
+              </h1>
+              <p className="hero__sub">
+                A Vela cuida da agenda, da cobrança e do WhatsApp do paciente — para que sua
+                equipe cuide do atendimento. Sem planilha, sem cobrança vencida esquecida, sem
+                paciente que some entre uma sessão e outra.
               </p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-champagne to-amber-gold flex items-center justify-center text-obsidian font-cormorant font-bold">
-                  {agent.author.charAt(5)}
-                </div>
+              <div className="hero__ctas">
+                <a className="btn btn--primary" href="/solicitar-acesso">
+                  Começar avaliação <span aria-hidden>→</span>
+                </a>
+                <a className="btn btn--ghost" href="/demo">Ver demonstração</a>
+              </div>
+              <div className="hero__fineprint">
+                <span>14 dias grátis</span>
+                <span>sem cartão</span>
+                <span>suporte humano em português</span>
+              </div>
+            </div>
+
+            {/* ─── pure-CSS agenda card preview ─── */}
+            <aside className="agenda-card" aria-label="Pré-visualização da agenda">
+              <div className="agenda-card__head">
                 <div>
-                  <div className="text-sm font-medium text-ivory">{agent.author}</div>
-                  <div className="text-xs text-ivory/50">{agent.specialty}</div>
+                  <div className="agenda-card__title">Hoje</div>
+                  <div className="agenda-card__subtitle">Dra. Helena · terça, 14h</div>
+                </div>
+                <span className="agenda-card__tag">Ao vivo</span>
+              </div>
+
+              <div className="agenda-card__rows">
+                <div className="agenda-card__row">
+                  <span className="time">14:30</span>
+                  <span className="name">Ana Beatriz</span>
+                  <span className="state is-ok">confirmado</span>
+                </div>
+                <div className="agenda-card__row">
+                  <span className="time">15:00</span>
+                  <span className="name">Carlos Mendes</span>
+                  <span className="state is-ok">confirmado</span>
+                </div>
+                <div className="agenda-card__row">
+                  <span className="time">15:45</span>
+                  <span className="name">Beatriz Costa</span>
+                  <span className="state is-wait">aguarda</span>
+                </div>
+                <div className="agenda-card__row">
+                  <span className="time">16:30</span>
+                  <span className="name">Roberto Lima</span>
+                  <span className="state is-ok">confirmado</span>
+                </div>
+                <div className="agenda-card__row">
+                  <span className="time">17:00</span>
+                  <span className="name">Fernanda M.</span>
+                  <span className="state is-new">novo</span>
                 </div>
               </div>
-              <div className="mt-4 pt-4 border-t border-ivory/10">
-                <span className="text-[10px] text-champagne font-dm-mono uppercase tracking-wider">
-                  {agent.tag}
-                </span>
+
+              <div className="agenda-card__total">
+                <span>Ocupação</span>
+                <span className="num">68%</span>
               </div>
-            </motion.div>
-          ))}
+              <div className="agenda-card__bar" aria-hidden>
+                <i />
+              </div>
+            </aside>
+          </div>
         </div>
-      </div>
-    </section>
-  );
-}
 
-// FAQ Component
-function FAQ() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+        {/* hero marquee strip */}
+        <div className="hero__marquee" aria-hidden>
+          <div className="hero__marquee__track">
+            <span>Agenda inteligente</span>
+            <span>Cobrança no Pix</span>
+            <span>WhatsApp Business</span>
+            <span>Nota fiscal</span>
+            <span>Prontuário digital</span>
+            <span>Multiunidade</span>
+            <span>Agente Júlia</span>
+            <span>Agenda inteligente</span>
+            <span>Cobrança no Pix</span>
+            <span>WhatsApp Business</span>
+            <span>Nota fiscal</span>
+            <span>Prontuário digital</span>
+            <span>Multiunidade</span>
+            <span>Agente Júlia</span>
+          </div>
+        </div>
+      </section>
 
-  const faqs = [
-    {
-      q: "O que é a VELA?",
-      a: "A VELA é uma plataforma de gestão inteligente para clínicas que utiliza IA para automatizar agendamentos, cobranças e retenção de pacientes. Nossa missão é permitir que profissionais de saúde foquem no que realmente importa: transformar vidas.",
-    },
-    {
-      q: "Como a VELA funciona?",
-      a: "Através dos nossos Agentes VELA — Júlia, Sofia, Max e Atlas — que trabalham 24/7 para otimizar sua operação. Eles se integram ao seu fluxo de trabalho existente e automatizam tarefas repetitivas com inteligência contextual.",
-    },
-    {
-      q: "Como a VELA protege os dados dos pacientes?",
-      a: "Somos 100% LGPD compliant. Todos os dados são criptografados em repouso e em trânsito, com backups automáticos e acesso restrito. Sua clínica e seus pacientes estão sempre protegidos.",
-    },
-    {
-      q: "Quanto custa a VELA?",
-      a: "Oferecemos planos flexíveis que se adaptam ao tamanho da sua clínica. Entre em contato para uma demonstração personalizada e proposta comercial sob medida.",
-    },
-  ];
+      {/* ───────── logos strip ───────── */}
+      <section className="logos">
+        <div className="container">
+          <div className="logos__label">Construído para clínicas como</div>
+          <div className="logos__row">
+            {/* TODO: swap for real customer SVG logos when available */}
+            <div className="l-1">Clínica Lumen</div>
+            <div className="l-2">estética dom</div>
+            <div className="l-3">VITA</div>
+            <div className="l-4">AURORA</div>
+            <div className="l-5">Norte</div>
+            <div className="l-6">Sanare</div>
+          </div>
+        </div>
+      </section>
 
-  return (
-    <section className="py-24 md:py-32 bg-deep-teal border-t border-ivory/5">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid lg:grid-cols-2 gap-16">
-          {/* FAQ Accordion */}
-          <div>
-            {faqs.map((faq, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className={`border-b border-ivory/10 ${i === 0 ? "pt-0" : ""}`}
-              >
-                <button
-                  className="w-full py-6 flex items-center justify-between text-left"
-                  onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                >
-                  <span className="text-lg text-ivory font-medium pr-8">{faq.q}</span>
-                  <span className={`text-champagne transition-transform duration-300 ${openIndex === i ? "rotate-45" : ""}`}>
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+      {/* ───────── workbench · demo-grade dashboard ───────── */}
+      <section className="workbench" id="workbench">
+        <div className="container">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Plataforma</span>
+              <h2 className="section-head__title">
+                Um painel que sua equipe <em>realmente</em> usa.
+              </h2>
+            </div>
+            <p className="section-head__desc">
+              Agenda em tempo real, financeiro reconciliado, atividade dos agentes e
+              busca por paciente — num único lugar, sem exportar planilha, sem trocar de aba.
+            </p>
+          </div>
+
+          <div className="bench" role="img" aria-label="Demonstração do painel Vela">
+            {/* ─── sidebar ─── */}
+            <aside className="bench__rail">
+              <div className="bench__brand">Vela</div>
+
+              <div className="bench__group-label">Operação</div>
+              <div className="bench__nav">
+                <div className="bench__navitem" aria-current="page">
+                  <span className="glyph" aria-hidden>
+                    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <rect x="2" y="3" width="10" height="9" rx="1.5" />
+                      <path d="M2 6h10M5 1.5v2M9 1.5v2" strokeLinecap="round" />
                     </svg>
                   </span>
-                </button>
-                <motion.div
-                  initial={false}
-                  animate={{
-                    height: openIndex === i ? "auto" : 0,
-                    opacity: openIndex === i ? 1 : 0,
-                  }}
-                  transition={{ duration: 0.3 }}
-                  className="overflow-hidden"
-                >
-                  <p className="pb-6 text-ivory/60 leading-relaxed">{faq.a}</p>
-                </motion.div>
-              </motion.div>
-            ))}
-          </div>
+                  Agenda
+                  <span className="count">14</span>
+                </div>
+                <div className="bench__navitem">
+                  <span className="glyph" aria-hidden>
+                    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M2 3h10v8H2zM2 6h10" />
+                    </svg>
+                  </span>
+                  Financeiro
+                  <span className="count">3</span>
+                </div>
+                <div className="bench__navitem">
+                  <span className="glyph" aria-hidden>
+                    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <circle cx="7" cy="5" r="2.5" />
+                      <path d="M2.5 12c.5-2 2.5-3 4.5-3s4 1 4.5 3" strokeLinecap="round" />
+                    </svg>
+                  </span>
+                  Pacientes
+                </div>
+              </div>
 
-          {/* Right side CTA */}
-          <div className="flex flex-col justify-center">
-            <motion.h2
-              initial={{ opacity: 0, x: 40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="font-cormorant text-4xl md:text-5xl lg:text-6xl text-ivory leading-tight mb-8"
-            >
-              Sua clínica no piloto inteligente.
-            </motion.h2>
-            <motion.a
-              href="/solicitar-acesso"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className="self-start px-8 py-4 bg-champagne text-obsidian text-base font-medium rounded-full hover:bg-amber-gold transition-all duration-300 inline-block"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              Solicitar acesso
-            </motion.a>
+              <div className="bench__group-label">Inteligência</div>
+              <div className="bench__nav">
+                <div className="bench__navitem">
+                  <span className="glyph" aria-hidden>
+                    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <circle cx="7" cy="7" r="5" />
+                      <path d="M7 4v3l2 1.5" strokeLinecap="round" />
+                    </svg>
+                  </span>
+                  Agentes
+                </div>
+                <div className="bench__navitem">
+                  <span className="glyph" aria-hidden>
+                    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M2 11V4l3 4 3-2 4 5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
+                  Relatórios
+                </div>
+              </div>
+
+              <div className="bench__group-label">Conta</div>
+              <div className="bench__nav">
+                <div className="bench__navitem">
+                  <span className="glyph" aria-hidden>
+                    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <circle cx="7" cy="7" r="2" />
+                      <path d="M7 1v2M7 11v2M1 7h2M11 7h2M2.5 2.5l1.4 1.4M10.1 10.1l1.4 1.4M2.5 11.5l1.4-1.4M10.1 3.9l1.4-1.4" strokeLinecap="round" />
+                    </svg>
+                  </span>
+                  Configurações
+                </div>
+                <div className="bench__navitem">
+                  <span className="glyph" aria-hidden>
+                    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <circle cx="7" cy="7" r="5.5" />
+                      <path d="M5.5 5.5c.3-1 1-1.3 1.5-1.3 1 0 1.6.7 1.6 1.5 0 1-1.5 1.3-1.5 2.3M7 10v.1" strokeLinecap="round" />
+                    </svg>
+                  </span>
+                  Ajuda
+                </div>
+              </div>
+
+              <div className="bench__profile">
+                <span className="avatar">H</span>
+                <div className="info">
+                  <span className="name">Dra. Helena</span>
+                  <span className="role">admin · lumen</span>
+                </div>
+                <svg className="chev" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+                  <path d="M3 5l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+            </aside>
+
+            {/* ─── work area ─── */}
+            <div className="bench__work">
+              {/* topbar */}
+              <div className="bench__topbar">
+                <div className="bench__title">
+                  <h3>Agenda</h3>
+                  <span className="date">terça · 20 de maio · 14h32</span>
+                </div>
+
+                <div className="bench__search" role="search">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+                    <circle cx="6" cy="6" r="4" />
+                    <path d="M9 9l3 3" strokeLinecap="round" />
+                  </svg>
+                  <span className="placeholder">Buscar paciente, atendimento…</span>
+                  <span className="kbd">⌘K</span>
+                </div>
+
+                <button type="button" className="bench__icon-btn" aria-label="Notificações">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+                    <path d="M3 5.5a4 4 0 018 0v2l1 2H2l1-2zM5.5 11.5a1.5 1.5 0 003 0" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span className="badge-dot" aria-hidden />
+                </button>
+
+                <span className="bench__avatar" aria-label="Dra. Helena">H</span>
+              </div>
+
+              {/* panes: schedule + aside */}
+              <div className="bench__panes">
+                {/* Schedule table */}
+                <div className="bench__schedule">
+                  <div className="bench__schedule__head">
+                    <h4>Hoje</h4>
+                    <span className="count">14 atendimentos</span>
+                    <div className="filters" role="group" aria-label="Filtrar">
+                      <button type="button" aria-pressed="true">Todos</button>
+                      <button type="button" aria-pressed="false">Confirmados</button>
+                      <button type="button" aria-pressed="false">Aguardando</button>
+                    </div>
+                  </div>
+
+                  <div className="bench__table">
+                    <div className="bench__row is-now">
+                      <span className="time">14:30</span>
+                      <span className="pavatar">A</span>
+                      <div className="who">
+                        <div className="name">Ana Beatriz Silva</div>
+                        <div className="svc">Limpeza facial · 60 min · Dra. Helena</div>
+                      </div>
+                      <span className="price">R$ 350</span>
+                      <span className="state is-now">agora</span>
+                    </div>
+                    <div className="bench__row">
+                      <span className="time">15:00</span>
+                      <span className="pavatar">C</span>
+                      <div className="who">
+                        <div className="name">Carlos Mendes</div>
+                        <div className="svc">Consulta · 30 min · Dr. Vinicius</div>
+                      </div>
+                      <span className="price">R$ 280</span>
+                      <span className="state is-ok">confirmado</span>
+                    </div>
+                    <div className="bench__row">
+                      <span className="time">15:45</span>
+                      <span className="pavatar">B</span>
+                      <div className="who">
+                        <div className="name">Beatriz Costa Lima</div>
+                        <div className="svc">Procedimento estético · 90 min</div>
+                      </div>
+                      <span className="price">R$ 520</span>
+                      <span className="state is-wait">aguardando</span>
+                    </div>
+                    <div className="bench__row">
+                      <span className="time">16:30</span>
+                      <span className="pavatar">R</span>
+                      <div className="who">
+                        <div className="name">Roberto Lima</div>
+                        <div className="svc">Retorno · 30 min · Dra. Helena</div>
+                      </div>
+                      <span className="price">R$ 180</span>
+                      <span className="state is-ok">confirmado</span>
+                    </div>
+                    <div className="bench__row">
+                      <span className="time">17:00</span>
+                      <span className="pavatar">F</span>
+                      <div className="who">
+                        <div className="name">Fernanda Moreira</div>
+                        <div className="svc">Avaliação · 45 min · primeira vez</div>
+                      </div>
+                      <span className="price">R$ 220</span>
+                      <span className="state is-new">novo</span>
+                    </div>
+                    <div className="bench__row">
+                      <span className="time">17:30</span>
+                      <span className="pavatar">M</span>
+                      <div className="who">
+                        <div className="name">Marcelo Souza</div>
+                        <div className="svc">Sessão · 60 min · pacote 04/10</div>
+                      </div>
+                      <span className="price">R$ 350</span>
+                      <span className="state is-ok">confirmado</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Aside */}
+                <div className="bench__aside">
+                  <div className="bench__ministats">
+                    <div className="bench__ministat">
+                      <div className="label">Confirmação</div>
+                      <div className="value">87<small>%</small></div>
+                      <div className="delta">+4 pp vs sem.</div>
+                    </div>
+                    <div className="bench__ministat">
+                      <div className="label">Faturamento</div>
+                      <div className="value">R$ 18,4<small>k</small></div>
+                      <div className="delta">+12% vs sem.</div>
+                    </div>
+                    <div className="bench__ministat">
+                      <div className="label">Em aberto</div>
+                      <div className="value">R$ 3,1<small>k</small></div>
+                      <div className="delta is-down">2 cobranças</div>
+                    </div>
+                    <div className="bench__ministat">
+                      <div className="label">Próximo livre</div>
+                      <div className="value">10:30<small>qua</small></div>
+                      <div className="delta">2 dias</div>
+                    </div>
+                  </div>
+
+                  <div className="bench__chart">
+                    <h4>
+                      Atendimentos · 7 dias
+                      <span className="legend">SEG–DOM</span>
+                    </h4>
+                    <svg viewBox="0 0 240 90" role="img" aria-label="Atendimentos por dia">
+                      <g className="grid">
+                        <line x1="0" y1="30" x2="240" y2="30" />
+                        <line x1="0" y1="60" x2="240" y2="60" />
+                      </g>
+                      {/* Bars: seg=10, ter=14, qua=8, qui=12, sex=15, sáb=6, dom=0 */}
+                      <rect className="bar" x="6" y="42" width="26" height="36" rx="2" />
+                      <rect className="bar" x="40" y="22" width="26" height="56" rx="2" />
+                      <rect className="bar is-mute" x="74" y="50" width="26" height="28" rx="2" />
+                      <rect className="bar is-mute" x="108" y="34" width="26" height="44" rx="2" />
+                      <rect className="bar is-mute" x="142" y="18" width="26" height="60" rx="2" />
+                      <rect className="bar is-mute" x="176" y="58" width="26" height="20" rx="2" />
+                      <rect className="bar is-mute" x="210" y="74" width="26" height="4" rx="2" />
+                    </svg>
+                  </div>
+
+                  <div className="bench__activity">
+                    <h4>
+                      Atividade recente
+                      <a href="#">ver tudo →</a>
+                    </h4>
+                    <div className="bench__activity__row">
+                      <span className="agent is-julia" aria-hidden>J</span>
+                      <div className="what">
+                        <strong>Júlia</strong> confirmou consulta de Ana Beatriz
+                      </div>
+                      <span className="when">2 min</span>
+                    </div>
+                    <div className="bench__activity__row">
+                      <span className="agent is-sofia" aria-hidden>S</span>
+                      <div className="what">
+                        <strong>Sofia</strong> recebeu R$ 280 via Pix · Carlos M.
+                      </div>
+                      <span className="when">8 min</span>
+                    </div>
+                    <div className="bench__activity__row">
+                      <span className="agent is-max" aria-hidden>M</span>
+                      <div className="what">
+                        <strong>Max</strong> respondeu 4 mensagens no WhatsApp
+                      </div>
+                      <span className="when">14 min</span>
+                    </div>
+                    <div className="bench__activity__row">
+                      <span className="agent is-julia" aria-hidden>J</span>
+                      <div className="what">
+                        <strong>Júlia</strong> remarcou Beatriz Costa para sex 10h
+                      </div>
+                      <span className="when">22 min</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
-  );
-}
+      </section>
 
-// Footer Component
-function Footer() {
-  return (
-    <footer className="bg-obsidian pt-20 pb-8">
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Main footer grid */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-16">
-          {/* Brand column */}
-          <div className="col-span-2">
-            <div className="flex items-center gap-2.5 mb-6">
-              <div className="w-8 h-8 rounded-lg bg-champagne flex items-center justify-center text-obsidian">
-                <FlameIcon className="w-5 h-5" />
-              </div>
-              <span className="font-cormorant text-xl font-bold tracking-tight text-ivory">VELA</span>
+      {/* ───────── stats triplet (real numbers TBD — placeholders) ───────── */}
+      <section className="stats">
+        <div className="container">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Resultados</span>
+              <h2 className="section-head__title">
+                O que a Vela <em>devolve</em> pra sua clínica.
+              </h2>
             </div>
-            <p className="text-ivory/50 text-sm leading-relaxed mb-6 max-w-xs">
-              Inteligência que ilumina negócios. A plataforma definitiva para clínicas que buscam excelência.
+            <p className="section-head__desc">
+              Os números abaixo serão preenchidos com a média dos clientes reais antes do
+              lançamento. Por enquanto, marcadores honestos no lugar de claims inventados.
             </p>
-            {/* Trust badges */}
-            <div className="flex flex-wrap gap-4">
-              {["LGPD Compliant", "Site Seguro", "Google for Startups"].map((badge) => (
-                <span key={badge} className="px-3 py-1.5 rounded-full bg-ivory/5 border border-ivory/10 text-[10px] text-ivory/60 uppercase tracking-wider">
-                  {badge}
-                </span>
-              ))}
+          </div>
+
+          <div className="stats__grid">
+            <div className="stats__card">
+              <div className="stats__num is-placeholder">—</div>
+              <div className="stats__label">redução de no-show</div>
+              <div className="stats__note">
+                Confirmações automáticas via WhatsApp + lista de espera ativa.
+              </div>
+              <span className="stats__placeholder-flag">métrica a confirmar</span>
+            </div>
+
+            <div className="stats__card">
+              <div className="stats__num is-placeholder">—</div>
+              <div className="stats__label">horas/semana economizadas</div>
+              <div className="stats__note">
+                Tempo que volta pra equipe quando agente faz a cobrança e a confirmação.
+              </div>
+              <span className="stats__placeholder-flag">métrica a confirmar</span>
+            </div>
+
+            <div className="stats__card">
+              <div className="stats__num is-placeholder">—</div>
+              <div className="stats__label">clínicas em operação</div>
+              <div className="stats__note">
+                Contagem real, atualizada mensalmente — sem &ldquo;mais de N&rdquo;.
+              </div>
+              <span className="stats__placeholder-flag">métrica a confirmar</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ───────── three feature cards ───────── */}
+      <section className="features" id="features">
+        <div className="container">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Agentes</span>
+              <h2 className="section-head__title">
+                Três agentes. Uma <em>equipe</em> que não tira folga.
+              </h2>
+            </div>
+            <p className="section-head__desc">
+              Cada agente tem voz própria, regras configuráveis e o bom senso de
+              chamar uma pessoa quando o assunto pede.
+            </p>
+          </div>
+
+          <div className="features__grid">
+            <article className="feature">
+              <div className="feature__art art-agenda" aria-hidden>
+                <div className="week">
+                  <span className="h">S</span>
+                  <span className="h">T</span>
+                  <span className="h">Q</span>
+                  <span className="h">Q</span>
+                  <span className="h">S</span>
+                  <span className="h">S</span>
+                  <span className="h">D</span>
+                  {Array.from({ length: 28 }).map((_, i) => {
+                    const busy = [2, 4, 7, 9, 11, 14, 16, 18, 21, 23, 25].includes(i);
+                    const full = [9, 16, 23].includes(i);
+                    return <span key={i} className={`c ${full ? "is-full" : busy ? "is-busy" : ""}`} />;
+                  })}
+                </div>
+              </div>
+              <h3 className="feature__title">Júlia · agenda</h3>
+              <p className="feature__desc">
+                Confirma a consulta 24h antes, oferece o horário a quem está na lista
+                de espera, remarca quando o paciente desmarca.
+              </p>
+              <a className="feature__link" href="/agentes">conhecer</a>
+            </article>
+
+            <article className="feature">
+              <div className="feature__art art-pay" aria-hidden>
+                <i /><i /><i /><i /><i />
+              </div>
+              <h3 className="feature__title">Sofia · cobrança</h3>
+              <p className="feature__desc">
+                Envia o link de Pix logo após o atendimento. Recobra com gentileza
+                quando vence. Concilia o que entrou sem você abrir planilha.
+              </p>
+              <a className="feature__link" href="/agentes">conhecer</a>
+            </article>
+
+            <article className="feature">
+              <div className="feature__art art-chat" aria-hidden>
+                <div className="bubble">Oi, tudo bem? Posso confirmar amanhã 14h30?</div>
+                <div className="bubble">Pode sim! Pix por favor.</div>
+                <div className="bubble">R$ 350 · vencimento hoje, 22h.</div>
+              </div>
+              <h3 className="feature__title">Max · atendimento</h3>
+              <p className="feature__desc">
+                Responde dúvidas básicas no WhatsApp 24/7. Passa pra equipe quando
+                o paciente precisa de gente — com o contexto da conversa inteira.
+              </p>
+              <a className="feature__link" href="/agentes">conhecer</a>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      {/* ───────── pricing ───────── */}
+      <section className="pricing" id="pricing">
+        <div className="container">
+          <div className="pricing__head">
+            <span className="eyebrow">Preços</span>
+            <h2>
+              Sem letra <em>miúda</em>.
+            </h2>
+            <p>
+              Mensalidade sem fidelidade. Cancele quando quiser pelo painel.
+              Migração inclusa nos planos Clínica e Rede.
+            </p>
+          </div>
+
+          {/*
+            NOTE on pricing: placeholder amounts (R$ 297 / R$ 697 / R$ 1.497) match
+            the Brazilian B2B clinic SaaS range. Confirm with the user before launch.
+          */}
+          <div className="pricing__grid">
+            <div className="tier">
+              <div className="tier__name">Essencial</div>
+              <div className="tier__price">
+                <span className="currency">R$</span>297<small>/ mês</small>
+              </div>
+              <p className="tier__desc">
+                Profissional autônomo ou consultório de uma sala.
+              </p>
+              <ul className="tier__features">
+                <li>Agenda inteligente</li>
+                <li>Cobrança automática (Pix / cartão)</li>
+                <li>Júlia · agente WhatsApp</li>
+                <li>1 profissional · até 200 atendimentos / mês</li>
+                <li>Suporte por e-mail</li>
+              </ul>
+              <a className="btn btn--ghost" href="/solicitar-acesso">Começar com Essencial</a>
+            </div>
+
+            <div className="tier tier--featured">
+              <span className="tier__badge">Recomendado</span>
+              <div className="tier__name">Clínica</div>
+              <div className="tier__price">
+                <span className="currency">R$</span>697<small>/ mês</small>
+              </div>
+              <p className="tier__desc">Clínica de 2 a 5 profissionais com volume estável.</p>
+              <ul className="tier__features">
+                <li>Tudo do Essencial</li>
+                <li>Sofia · cobrança automática</li>
+                <li>Max · atendimento 24/7</li>
+                <li>Até 5 profissionais · atendimentos ilimitados</li>
+                <li>Painel multi-unidade</li>
+                <li>Suporte prioritário (resposta em 4h)</li>
+              </ul>
+              <a className="btn btn--primary" href="/solicitar-acesso">Começar com Clínica</a>
+            </div>
+
+            <div className="tier">
+              <div className="tier__name">Rede</div>
+              <div className="tier__price">
+                <span className="currency">R$</span>1.497<small>/ mês</small>
+              </div>
+              <p className="tier__desc">Grupo com múltiplas unidades ou alto volume.</p>
+              <ul className="tier__features">
+                <li>Tudo da Clínica</li>
+                <li>Atlas · agente analítico</li>
+                <li>Múltiplas unidades · sem limite de profissionais</li>
+                <li>Integrações sob demanda (ERP, contabilidade)</li>
+                <li>Gerente de conta dedicado</li>
+                <li>SLA contratado</li>
+              </ul>
+              <a className="btn btn--ghost" href="/solicitar-acesso">Começar com Rede</a>
             </div>
           </div>
 
-          {/* Link columns */}
-          {[
-            { title: "Empresa", links: ["Sobre", "Carreiras", "Imprensa", "Contato"] },
-            { title: "Agentes", links: ["Júlia", "Sofia", "Max", "Atlas"] },
-            { title: "Social", links: ["Instagram", "LinkedIn", "YouTube"] },
-          ].map((col) => (
-            <div key={col.title}>
-              <h4 className="text-ivory font-medium mb-4">{col.title}</h4>
-              <ul className="space-y-3">
-                {col.links.map((link) => (
-                  <li key={link}>
-                    <a href="#" className="text-ivory/50 text-sm hover:text-champagne transition-colors duration-300">
-                      {link}
-                    </a>
-                  </li>
-                ))}
+          <p className="pricing__footnote">
+            Sem taxa de setup. Sem custo por usuário extra. As taxas de Pix e cartão são
+            as do gateway — a Vela não cobra markup em cima.
+          </p>
+        </div>
+      </section>
+
+      {/* ───────── testimonial (real quote preserved from existing copy) ───────── */}
+      <section className="testimonial">
+        <div className="container">
+          <p className="testimonial__quote">
+            Sabemos o faturamento da clínica em tempo real, sem ninguém abrir planilha.
+          </p>
+          <div className="testimonial__byline">
+            <strong>Dr. Vinicius</strong>
+            <span>Oftalmologista · Cliente Vela</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ───────── CTA panel ───────── */}
+      <section className="cta">
+        <div className="container">
+          <div className="cta__panel">
+            <h2 className="cta__title">
+              Comece a operar com a Vela <em>esta semana</em>.
+            </h2>
+            <p className="cta__sub">
+              Importa sua agenda numa tarde, configura um agente em uma hora,
+              cobra o primeiro paciente amanhã. Sem cartão, sem fidelidade.
+            </p>
+            <div className="hero__ctas" style={{ justifyContent: "center" }}>
+              <a className="btn btn--primary" href="/solicitar-acesso">
+                Começar avaliação <span aria-hidden>→</span>
+              </a>
+              <a className="btn btn--ghost" href="/demo">Agendar demonstração</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ───────── footer · Ft5 Statement ───────── */}
+      <footer className="footer">
+        <div className="container">
+          <p className="footer__statement">
+            Software que devolve o <em>tempo</em> à sua clínica.
+          </p>
+
+          <div className="footer__row">
+            <div className="footer__col">
+              <h5>Produto</h5>
+              <ul>
+                <li><a href="/plataforma">Plataforma</a></li>
+                <li><a href="/agentes">Agentes</a></li>
+                <li><a href="#pricing">Preços</a></li>
+                <li><a href="/demo">Demonstração</a></li>
               </ul>
             </div>
-          ))}
-        </div>
-
-        {/* Bottom bar */}
-        <div className="pt-8 border-t border-ivory/10 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex flex-wrap gap-6 text-sm text-ivory/40">
-            <a href="#" className="hover:text-ivory/60 transition-colors">Política de Privacidade</a>
-            <a href="#" className="hover:text-ivory/60 transition-colors">Termos & Condições</a>
+            <div className="footer__col">
+              <h5>Empresa</h5>
+              <ul>
+                <li><a href="/sobre">Sobre</a></li>
+                <li><a href="#">Contato</a></li>
+                <li><a href="#">Carreiras</a></li>
+              </ul>
+            </div>
+            <div className="footer__col">
+              <h5>Legal</h5>
+              <ul>
+                <li><a href="#">Privacidade</a></li>
+                <li><a href="#">Termos</a></li>
+                <li><a href="#">LGPD</a></li>
+              </ul>
+            </div>
+            <div className="footer__col">
+              <h5>Conta</h5>
+              <ul>
+                <li><a href="/entrar">Entrar</a></li>
+                <li><a href="/solicitar-acesso">Começar avaliação</a></li>
+              </ul>
+            </div>
           </div>
-          <p className="text-ivory/40 text-sm">2026 © VELA. Todos os direitos reservados.</p>
-        </div>
 
-        {/* Giant watermark */}
-        <div className="mt-16 text-center overflow-hidden">
-          <div className="watermark-text font-cormorant font-bold select-none">
-            VELA
+          <div className="footer__legal">
+            <span className="wordmark">Vela</span>
+            <span>{new Date().getFullYear()} © Vela · Hospedado em São Paulo · LGPD compliant</span>
           </div>
         </div>
-      </div>
-    </footer>
-  );
-}
-
-// Main Page Component
-export default function Home() {
-  return (
-    <div className="min-h-screen bg-ivory overflow-x-hidden">
-      <Navbar />
-      <main>
-        <Hero />
-        <FeatureCards />
-        <AutomationFlow />
-        <TestimonialsMarquee />
-        <SplitSection />
-        <AIAgentsDark />
-        <FAQ />
-      </main>
-      <Footer />
-    </div>
+      </footer>
+    </>
   );
 }

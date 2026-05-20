@@ -1,32 +1,41 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, DM_Sans, DM_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 
-const cormorant = Cormorant_Garamond({
-  variable: "--font-cormorant",
+const geist = Geist({
+  variable: "--font-geist",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600"],
   display: "swap",
 });
 
-const dmMono = DM_Mono({
-  variable: "--font-dm-mono",
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
   subsets: ["latin"],
-  weight: ["300", "400", "500"],
+  weight: ["400"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "VELA — Gestão Inteligente para Clínicas",
-  description: "Inteligência que ilumina negócios. IA que agenda, cobra e retém pacientes — enquanto você transforma vidas.",
-  keywords: ["gestão clínica", "IA", "agendamento", "clínicas de estética", "automação"],
+  title: "Vela · Sua clínica opera sozinha",
+  description:
+    "A plataforma e os agentes que cuidam da agenda, da cobrança e do relacionamento com o paciente. Sua clínica funciona enquanto você atende.",
+  keywords: [
+    "gestão de clínicas",
+    "software para clínicas",
+    "agendamento online",
+    "cobrança automática",
+    "agente de WhatsApp",
+    "clínica de estética",
+  ],
 };
 
 export default function RootLayout({
@@ -37,11 +46,9 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${cormorant.variable} ${dmSans.variable} ${dmMono.variable} h-full antialiased scroll-smooth`}
+      className={`${geist.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-ivory text-obsidian font-dm-sans">
-        {children}
-      </body>
+      <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
 }

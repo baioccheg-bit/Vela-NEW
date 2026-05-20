@@ -1,0 +1,34 @@
+[
+  {
+    "date": "2026-05-20",
+    "genre": "modern-minimal",
+    "macrostructure": "Marquee Hero",
+    "theme": "studied-DNA",
+    "theme_source": "https://www.usehallmark.com/examples/tally/",
+    "theme_axes": "light-cool / geometric-sans / deep-teal",
+    "nav": "N5 Floating pill",
+    "footer": "Ft5 Statement",
+    "enrichment": "H2 split diptych (pure-CSS agenda card, rotate 0.5°) + demo-grade bench (sidebar + topbar + schedule table + ministats + bar chart + activity feed) + Tier-A CSS feature art ×3",
+    "polish": "mono marquee strip (revision 2: gradients stripped, hero dotted-grid removed, body bloom removed, wordmark-only brand)",
+    "fonts": "Geist + Geist Mono + Instrument Serif (italic accent)",
+    "accent": "oklch(45% 0.10 195) deep teal",
+    "companion": "none — accent-deep tint substitutes",
+    "studied": true,
+    "diversification_suspended": true,
+    "brief": "VELA · Brazilian clinic SaaS landing — drive trial signup, built from studied DNA",
+    "redirects": ["accent: indigo → deep teal", "companion: lime → none", "LIVE pill: fake counter → static status", "stats: invented → placeholders + flag"]
+  },
+  {
+    "date": "2026-05-20",
+    "genre": "modern-minimal",
+    "macrostructure": "Workbench",
+    "theme": "Quiet",
+    "theme_axes": "light / geometric-sans / neutral",
+    "nav": "N5 Floating pill",
+    "footer": "Ft2 Inline single line",
+    "enrichment": "H8 mockup-split + F5 annotated screenshot × 3",
+    "polish": "none",
+    "studied": false,
+    "brief": "VELA · first Hallmark build, superseded by studied-DNA Marquee Hero (entry 1)"
+  }
+]

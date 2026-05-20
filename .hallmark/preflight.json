@@ -1,0 +1,20 @@
+{
+  "scanned_at": "2026-05-20",
+  "framework": "Next.js 16.2.1 App Router · React 19.2.4",
+  "styling": "Tailwind CSS v4 with @theme inline",
+  "fonts": {
+    "before": "Cormorant Garamond + DM Sans + DM Mono (via next/font)",
+    "after": "Geist + Fraunces (wordmark) + Geist Mono",
+    "override_reason": "User explicitly asked to forget the existing design frame"
+  },
+  "palette": {
+    "before": "VELA brand: Obsidian #0A0A0A, Champagne #C9A96E, Ivory #F7F5F2, Deep Teal #1A4A4A, Amber Gold #B8943C",
+    "after": "Hallmark Quiet: warm-white paper · near-black ink · graphite-blue focus-ring accent (OKLCH)",
+    "override_reason": "User explicitly asked to forget the existing design frame; legacy VELA tokens preserved as CSS aliases so non-landing routes keep working"
+  },
+  "motion": "framer-motion 12.38.0 — motion-on (used sparingly per Quiet theme discipline)",
+  "spacing": "Tailwind default 4-pt scale + Hallmark --space-* tokens",
+  "backend": "Prisma 7 + PostgreSQL · NextAuth · OpenAI",
+  "routes_touched": ["src/app/page.tsx", "src/app/layout.tsx", "src/app/globals.css"],
+  "routes_preserved": ["src/app/entrar/", "src/app/planos/", "src/app/plataforma/", "src/app/agentes/", "src/app/sobre/", "src/app/solicitar-acesso/", "src/app/demo/"]
+}

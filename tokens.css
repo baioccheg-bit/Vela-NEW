@@ -1,0 +1,98 @@
+/* Hallmark · macrostructure: Marquee Hero · genre: modern-minimal
+ * theme: studied-DNA (source: https://www.usehallmark.com/examples/tally/)
+ * paper-band: light cool · display-style: geometric-sans · accent-hue: deep-teal
+ * companion: none (teal does both roles via accent-deep tint)
+ * nav: N5 Floating pill · footer: Ft5 Statement
+ * studied: yes · DNA-source: url (Hallmark public example, public reference for Vela brand)
+ * Generated 2026-05-20.
+ */
+
+:root {
+  /* Paper / ink — near-white tinted slightly cool, mirroring Tally's hue band 258°
+   * but lifted toward 200° to harmonize with the teal accent.
+   */
+  --color-paper-0: oklch(98.4% 0.004 220);   /* page paper */
+  --color-paper-1: oklch(96.2% 0.008 220);   /* card */
+  --color-paper-2: oklch(93.0% 0.013 220);   /* elevated card */
+  --color-paper-3: oklch(89.0% 0.018 220);   /* hairline tint */
+
+  --color-ink-0: oklch(18.0% 0.025 220);     /* primary ink */
+  --color-ink-1: oklch(35.0% 0.020 220);     /* body */
+  --color-ink-2: oklch(52.0% 0.015 220);     /* secondary */
+  --color-ink-3: oklch(70.0% 0.010 220);     /* mute */
+
+  /* Accent — deep teal (single chromatic hue, no companion) */
+  --color-accent:       oklch(45.0% 0.110 195);   /* primary teal */
+  --color-accent-soft:  oklch(62.0% 0.080 195);   /* soft teal — featured-tier checks, focus tinting */
+  --color-accent-deep:  oklch(30.0% 0.060 195);   /* dark teal — featured pricing tier background */
+  --color-accent-tint:  oklch(94.0% 0.025 195);   /* very light teal — card-1 background wash */
+
+  /* Semantic — kept minimal and tonally consistent (no warm companion) */
+  --color-warning: oklch(72.0% 0.140 60);    /* amber, used sparingly */
+  --color-success: oklch(58.0% 0.130 165);   /* green-teal — harmonises with accent */
+
+  /* Focus ring — lifted accent so contrast clears AA */
+  --color-focus: oklch(40.0% 0.140 195);
+
+  /* Typography — Geist + Geist Mono + Instrument Serif (3 families, the ceiling)
+   * Geist:           display + body
+   * Geist Mono:      labels, eyebrows, data, fineprint
+   * Instrument Serif italic: 1 outlier role — italic-accent words inside display headings
+   */
+  --font-display: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-body:    var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  --font-italic:  var(--font-instrument-serif), "Times New Roman", serif;
+
+  /* Type scale — modular, tight (mirrors Tally) */
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-md:   1.125rem;
+  --text-lg:   1.375rem;
+  --text-xl:   1.75rem;
+  --text-2xl:  2.5rem;
+  --text-3xl:  3.5rem;
+  --text-4xl:  clamp(2rem, 7vw, 4rem);
+  --text-5xl:  clamp(2rem, 10vw, 5rem);
+
+  /* Spacing — 4-pt scale */
+  --space-2xs: 0.25rem;
+  --space-xs:  0.5rem;
+  --space-sm:  0.75rem;
+  --space-md:  1rem;
+  --space-lg:  1.5rem;
+  --space-xl:  2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 5rem;
+  --space-4xl: 8rem;
+
+  /* Radius */
+  --radius-sm:   6px;
+  --radius-md:   12px;
+  --radius-lg:   20px;
+  --radius-xl:   28px;
+  --radius-pill: 999px;
+
+  /* Hairlines */
+  --rule-hair: 1px solid color-mix(in oklch, var(--color-ink-0) 8%, transparent);
+  --rule-soft: 1px solid color-mix(in oklch, var(--color-ink-0) 14%, transparent);
+
+  /* Motion — CSS-only, no JS library (mirroring Tally's choice) */
+  --ease-out:    cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-in:     cubic-bezier(0.55, 0.06, 0.68, 0.19);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --dur-fast: 140ms;
+  --dur-mid:  240ms;
+  --dur-slow: 420ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 140ms !important;
+    scroll-behavior: auto !important;
+  }
+}
