@@ -1,0 +1,9 @@
+# These are the owners of this repository.
+# Contact these people about issues regarding this repository.
+
+# Match all files and set the owner
+* @baioccheg-bit
+
+# You can also set owners for specific directories or file types
+# /docs/ @octocat
+# *.js @jsfan
