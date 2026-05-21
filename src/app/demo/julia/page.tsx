@@ -7,32 +7,41 @@ export default function JuliaPage() {
   const [activeId, setActiveId] = useState(conversations[0].id);
   const active = conversations.find((c) => c.id === activeId) ?? conversations[0];
 
+  const stats = [
+    { label: "Conversas hoje", value: "84", hint: "+12 nas últimas 2h" },
+    { label: "Tempo médio de resposta", value: "11s", hint: "98% automatizado" },
+    { label: "Agendamentos via Júlia", value: "47", hint: "este mês" },
+  ];
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[
-          { label: "Conversas hoje", value: "84", hint: "+12 nas últimas 2h" },
-          { label: "Tempo médio de resposta", value: "11s", hint: "98% automatizado" },
-          { label: "Agendamentos via Júlia", value: "47", hint: "este mês" },
-        ].map((s) => (
-          <div key={s.label} className="p-5 rounded-2xl bg-ivory/[0.03] border border-ivory/5">
-            <div className="text-[10px] uppercase tracking-widest text-ivory/40 font-dm-mono mb-2">
+        {stats.map((s) => (
+          <div key={s.label} className="relative p-5 rounded-xl bg-paper-0 border border-paper-3 overflow-hidden">
+            <span aria-hidden className="absolute top-0 left-5 right-5 h-[2px] bg-accent opacity-60" />
+            <div className="text-[10px] uppercase tracking-[0.12em] font-mono text-ink-2 mb-2">
               {s.label}
             </div>
-            <div className="font-cormorant text-2xl md:text-3xl text-ivory">{s.value}</div>
-            <div className="text-xs text-ivory/50 mt-1">{s.hint}</div>
+            <div className="font-display text-2xl md:text-3xl font-semibold tracking-[-0.025em] text-ink-0 tabular-nums">
+              {s.value}
+            </div>
+            <div className="text-xs text-ink-2 mt-1">{s.hint}</div>
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4 h-[640px]">
-        <aside className="rounded-2xl bg-ivory/[0.03] border border-ivory/5 overflow-hidden flex flex-col">
-          <div className="px-5 py-4 border-b border-ivory/5">
-            <div className="text-xs uppercase tracking-widest text-ivory/40 font-dm-mono mb-1">
-              Conversas ativas
+        {/* ─── conversation list ─── */}
+        <aside className="rounded-xl bg-paper-0 border border-paper-3 overflow-hidden flex flex-col">
+          <div className="px-5 py-4 border-b border-paper-3">
+            <div className="text-[10px] uppercase tracking-[0.12em] font-mono text-ink-2 mb-1">
+              Conversas
             </div>
-            <div className="font-cormorant text-lg text-ivory">{conversations.length} pacientes</div>
+            <div className="font-display text-xl font-semibold text-ink-0 tracking-[-0.02em]">
+              <span className="italic-accent">{conversations.length}</span> pacientes ativos
+            </div>
           </div>
+
           <ul className="flex-1 overflow-y-auto">
             {conversations.map((c) => {
               const isActive = c.id === activeId;
@@ -41,25 +50,32 @@ export default function JuliaPage() {
                   <button
                     type="button"
                     onClick={() => setActiveId(c.id)}
-                    className={`w-full text-left px-5 py-4 border-b border-ivory/5 transition-colors ${
-                      isActive ? "bg-champagne/[0.06]" : "hover:bg-ivory/[0.02]"
+                    className={`relative w-full text-left px-5 py-3.5 border-b border-paper-3 transition-colors ${
+                      isActive ? "bg-paper-1" : "hover:bg-paper-1"
                     }`}
                   >
+                    {isActive && (
+                      <span aria-hidden className="absolute left-0 top-0 bottom-0 w-[2px] bg-accent" />
+                    )}
                     <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-full bg-deep-teal/30 flex items-center justify-center text-xs text-ivory/80 shrink-0">
+                      <div
+                        className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-display font-semibold shrink-0 ${
+                          isActive ? "bg-accent text-paper-0" : "bg-paper-2 text-ink-1"
+                        }`}
+                      >
                         {c.patient.split(" ").map((n) => n[0]).slice(0, 2).join("")}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
-                          <span className={`text-sm truncate ${isActive ? "text-champagne" : "text-ivory"}`}>
+                          <span className={`text-sm font-medium truncate ${isActive ? "text-ink-0" : "text-ink-0"}`}>
                             {c.patient}
                           </span>
-                          <span className="text-[10px] text-ivory/40 font-dm-mono shrink-0">{c.time}</span>
+                          <span className="text-[10px] font-mono text-ink-3 shrink-0">{c.time}</span>
                         </div>
-                        <div className="text-xs text-ivory/50 truncate mt-0.5">{c.preview}</div>
+                        <div className="text-xs text-ink-2 truncate mt-0.5">{c.preview}</div>
                       </div>
                       {c.unread > 0 && (
-                        <span className="w-5 h-5 rounded-full bg-champagne text-obsidian text-[10px] font-medium flex items-center justify-center shrink-0">
+                        <span className="w-5 h-5 rounded-full bg-accent text-paper-0 text-[10px] font-mono font-medium flex items-center justify-center shrink-0">
                           {c.unread}
                         </span>
                       )}
@@ -71,44 +87,45 @@ export default function JuliaPage() {
           </ul>
         </aside>
 
-        <section className="rounded-2xl bg-ivory/[0.03] border border-ivory/5 overflow-hidden flex flex-col">
-          <div className="px-6 py-4 border-b border-ivory/5 flex items-center justify-between">
+        {/* ─── chat panel ─── */}
+        <section className="rounded-xl bg-paper-0 border border-paper-3 overflow-hidden flex flex-col">
+          <div className="px-6 py-3.5 border-b border-paper-3 flex items-center justify-between bg-paper-1">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-deep-teal/30 flex items-center justify-center text-sm text-ivory/80">
+              <div className="w-10 h-10 rounded-full bg-accent text-paper-0 flex items-center justify-center text-sm font-display font-semibold">
                 {active.patient.split(" ").map((n) => n[0]).slice(0, 2).join("")}
               </div>
               <div>
-                <div className="text-ivory">{active.patient}</div>
-                <div className="text-[11px] text-ivory/40 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-champagne" />
+                <div className="text-ink-0 font-medium">{active.patient}</div>
+                <div className="text-[11px] text-ink-2 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
                   Júlia ativa nesta conversa
                 </div>
               </div>
             </div>
             <button
               type="button"
-              className="text-xs text-ivory/60 hover:text-champagne px-3 py-1.5 rounded-lg border border-ivory/10 hover:border-champagne/30 transition-colors"
+              className="text-xs text-ink-1 px-3 py-1.5 rounded-md border border-paper-3 bg-paper-0 hover:bg-paper-2 hover:text-ink-0 transition-colors"
             >
               Assumir conversa
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-obsidian/40">
+          <div className="flex-1 overflow-y-auto p-6 space-y-3 bg-paper-1">
             {active.messages.map((m) => {
               const fromJulia = m.from === "julia";
               return (
                 <div key={m.id} className={`flex ${fromJulia ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[75%] ${fromJulia ? "items-end" : "items-start"} flex flex-col gap-1`}>
+                  <div className={`max-w-[75%] flex flex-col gap-1 ${fromJulia ? "items-end" : "items-start"}`}>
                     <div
-                      className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                      className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
                         fromJulia
-                          ? "bg-champagne/15 text-ivory rounded-br-sm border border-champagne/20"
-                          : "bg-ivory/[0.06] text-ivory rounded-bl-sm border border-ivory/5"
+                          ? "bg-accent text-paper-0 rounded-br-sm"
+                          : "bg-paper-0 text-ink-0 border border-paper-3 rounded-bl-sm"
                       }`}
                     >
                       {m.text}
                     </div>
-                    <div className="text-[10px] text-ivory/30 font-dm-mono px-1">
+                    <div className="text-[10px] font-mono text-ink-3 px-1">
                       {fromJulia ? "Júlia" : active.patient.split(" ")[0]} · {m.time}
                     </div>
                   </div>
@@ -117,11 +134,15 @@ export default function JuliaPage() {
             })}
           </div>
 
-          <div className="px-6 py-4 border-t border-ivory/5 bg-obsidian/60">
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-ivory/[0.03] border border-ivory/5">
-              <span className="w-2 h-2 rounded-full bg-champagne animate-pulse" />
-              <span className="text-xs text-ivory/50 flex-1">Júlia está respondendo automaticamente…</span>
-              <span className="text-[10px] text-ivory/30 font-dm-mono uppercase tracking-widest">GPT-4 · pt-BR</span>
+          <div className="px-6 py-3.5 border-t border-paper-3 bg-paper-0">
+            <div className="flex items-center gap-3 px-4 py-2.5 rounded-md bg-paper-1 border border-paper-3">
+              <span className="typing-dots" aria-hidden>
+                <span /><span /><span />
+              </span>
+              <span className="text-xs text-ink-2 flex-1">Júlia está respondendo automaticamente…</span>
+              <span className="text-[10px] font-mono uppercase tracking-[0.12em] text-ink-3">
+                GPT-4 · pt-BR
+              </span>
             </div>
           </div>
         </section>

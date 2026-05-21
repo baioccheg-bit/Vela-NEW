@@ -3,19 +3,25 @@ import { StatusBadge } from "./StatusBadge";
 
 export function AppointmentsTable() {
   return (
-    <div className="rounded-2xl bg-ivory/[0.03] border border-ivory/5 overflow-hidden">
-      <div className="flex items-center justify-between px-6 py-5 border-b border-ivory/5">
+    <div className="rounded-xl bg-paper-0 border border-paper-3 overflow-hidden">
+      <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-paper-3">
         <div>
-          <div className="text-xs uppercase tracking-widest text-ivory/40 font-dm-mono mb-1">Hoje</div>
-          <div className="font-cormorant text-xl text-ivory">Agendamentos do dia</div>
+          <div className="text-[10px] uppercase tracking-[0.12em] font-mono text-ink-2 mb-1">
+            Hoje
+          </div>
+          <div className="font-display text-xl font-semibold text-ink-0 tracking-[-0.02em]">
+            Agendamentos <span className="italic-accent">do dia</span>
+          </div>
         </div>
-        <span className="text-xs text-ivory/40 font-dm-mono">{todaysAppointments.length} atendimentos</span>
+        <span className="text-[10px] uppercase tracking-[0.12em] font-mono text-ink-2">
+          {todaysAppointments.length} atendimentos
+        </span>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-[10px] uppercase tracking-widest text-ivory/30 font-dm-mono">
+            <tr className="text-[10px] uppercase tracking-[0.12em] font-mono text-ink-3">
               <th className="text-left font-normal px-6 py-3">Horário</th>
               <th className="text-left font-normal px-6 py-3">Paciente</th>
               <th className="text-left font-normal px-6 py-3">Procedimento</th>
@@ -25,32 +31,41 @@ export function AppointmentsTable() {
             </tr>
           </thead>
           <tbody>
-            {todaysAppointments.map((ap, i) => (
-              <tr
-                key={ap.id}
-                className={`border-t border-ivory/5 hover:bg-ivory/[0.02] transition-colors ${
-                  i === 0 ? "bg-champagne/[0.03]" : ""
-                }`}
-              >
-                <td className="px-6 py-4 font-dm-mono text-ivory/80">{ap.time}</td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-deep-teal/30 flex items-center justify-center text-[11px] text-ivory/70">
-                      {ap.patient.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+            {todaysAppointments.map((ap, i) => {
+              const isNow = i === 0;
+              return (
+                <tr
+                  key={ap.id}
+                  className={`border-t border-paper-3 hover:bg-paper-1 transition-colors ${
+                    isNow ? "bg-accent-tint" : ""
+                  }`}
+                >
+                  <td className={`px-6 py-3.5 font-mono tabular-nums ${isNow ? "text-accent font-semibold" : "text-ink-1"}`}>
+                    {ap.time}
+                  </td>
+                  <td className="px-6 py-3.5">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-display font-semibold ${
+                          isNow ? "bg-accent text-paper-0" : "bg-paper-2 text-ink-1"
+                        }`}
+                      >
+                        {ap.patient.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                      </div>
+                      <span className="text-ink-0 font-medium">{ap.patient}</span>
                     </div>
-                    <span className="text-ivory">{ap.patient}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-ivory/70">{ap.procedure}</td>
-                <td className="px-6 py-4 text-ivory/60 hidden lg:table-cell">{ap.professional}</td>
-                <td className="px-6 py-4">
-                  <StatusBadge status={ap.status} />
-                </td>
-                <td className="px-6 py-4 text-right font-dm-mono text-ivory">
-                  {ap.value > 0 ? formatBRL(ap.value) : <span className="text-ivory/30">—</span>}
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td className="px-6 py-3.5 text-ink-1">{ap.procedure}</td>
+                  <td className="px-6 py-3.5 text-ink-2 hidden lg:table-cell">{ap.professional}</td>
+                  <td className="px-6 py-3.5">
+                    <StatusBadge status={ap.status} />
+                  </td>
+                  <td className="px-6 py-3.5 text-right font-mono tabular-nums text-ink-0">
+                    {ap.value > 0 ? formatBRL(ap.value) : <span className="text-ink-3">—</span>}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

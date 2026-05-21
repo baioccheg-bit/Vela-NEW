@@ -2,9 +2,24 @@
 
 > Sua clínica opera sozinha. A plataforma e os agentes que cuidam da agenda, da cobrança e do WhatsApp do paciente — para que sua equipe cuide do atendimento.
 
-Vela é um SaaS para clínicas brasileiras que combina painel de gestão em tempo real com agentes de IA especializados (Júlia · agenda, Sofia · cobrança, Max · atendimento, Atlas · análise). Este repositório contém o site de venda + uma demonstração navegável da plataforma.
+Vela é um SaaS para clínicas brasileiras que combina painel de gestão em tempo real com agentes de IA especializados (Júlia · agenda, Sofia · cobrança, Max · atendimento, Atlas · análise). Este repositório contém o site de venda + a app de produção (atualmente rodando em `/demo`; será empacotada como desktop app com Tauri quando for pra produção).
 
 ![Vela — site de venda](docs/hero.png)
+
+## A app
+
+A rota `/demo` é o app real — não uma demonstração descartável. Toda melhoria nela é trabalho de produto. Quando estiver pronto pra distribuir, será empacotado com [Tauri](https://tauri.app) e baixado pelos clientes após o pagamento da mensalidade.
+
+![Vela — visão geral do painel](docs/demo-overview.png)
+
+**Rotas implementadas:**
+
+- [`/demo`](http://localhost:3000/demo) — **Visão geral.** KPIs de faturamento, ocupação e no-show · gráfico de receita semanal · painel ao vivo dos agentes · agendamentos do dia.
+- [`/demo/agenda`](http://localhost:3000/demo/agenda) — **Agenda.** Grade semanal com status colorido por atendimento, indicador do dia atual, estatísticas de ocupação e lista de espera.
+- [`/demo/pacientes`](http://localhost:3000/demo/pacientes) — **Pacientes.** Base filtrável por tag (VIP · ativo · novo · inativo), busca por nome, LTV e ticket médio.
+- [`/demo/julia`](http://localhost:3000/demo/julia) — **Júlia.** Inbox do agente de WhatsApp com conversas mockadas em pt-BR, typing indicator e botão de assumir conversa.
+
+Todas as 4 rotas seguem [`design.md`](design.md) à risca — mesma paleta, mesma tipografia, mesma disciplina de superfície.
 
 ## Sistema de design
 
@@ -53,7 +68,11 @@ npm run dev
 ├── design.md                    # sistema de design travado (leia primeiro)
 ├── tokens.css                   # fonte da verdade dos tokens
 ├── docs/
-│   └── hero.png                 # screenshot do site
+│   ├── hero.png                 # screenshot do site de venda
+│   ├── demo-overview.png        # screenshot da Visão geral
+│   ├── demo-agenda.png          # screenshot da Agenda
+│   ├── demo-pacientes.png       # screenshot dos Pacientes
+│   └── demo-julia.png           # screenshot da Júlia
 ├── .hallmark/
 │   ├── log.json                 # memória do skill Hallmark (builds anteriores)
 │   └── preflight.json           # snapshot da pré-flight scan
@@ -78,12 +97,15 @@ npm run dev
 
 - [x] Site de venda (Marquee Hero + Workbench demo · revisão 2)
 - [x] Sistema de design travado (`design.md`)
-- [x] Demonstração interativa do dashboard (`/demo`)
+- [x] App de produção rodando em `/demo` — 4 rotas no sistema de design Vela
+- [ ] Animações do site de venda
 - [ ] Refator das rotas legacy (entrar, planos, plataforma, agentes, sobre) para o novo design system
+- [ ] Onboarding wizard ("tão fácil quanto bebê" — clínica → calendário → WhatsApp → agente → equipe)
 - [ ] Autenticação real (NextAuth + Prisma)
 - [ ] Integração WhatsApp Business API (Júlia em produção)
 - [ ] Pipeline de cobrança Pix (Sofia em produção)
 - [ ] Conciliação automática (Atlas)
+- [ ] Empacotamento desktop com Tauri + auto-update
 
 ## Trabalhando no design
 
