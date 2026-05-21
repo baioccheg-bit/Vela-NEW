@@ -47,19 +47,86 @@ A fonte da verdade é [`tokens.css`](tokens.css). As páginas referenciam tokens
 - **Next.js 16** App Router · React 19
 - **TypeScript** strict
 - **Tailwind CSS 4** com `@theme inline` referenciando os tokens
-- **Prisma + PostgreSQL** (auth e persistência)
-- **NextAuth.js** (autenticação)
-- **OpenAI SDK** (agentes)
+- **Prisma + PostgreSQL** (multi-tenant: Clinic + Membership + User)
+- **NextAuth.js** (email+senha · magic link · Google · Microsoft)
+- **Resend** (email transacional · convite, magic link, notificação de lead)
+- **OpenAI SDK** (instalado, ainda não wired aos agentes)
+- **bcryptjs** (hash de senha)
 
 ## Rodando localmente
 
+### 1. Instalar dependências
+
 ```bash
 npm install
+```
+
+### 2. Criar banco de dados (Supabase)
+
+1. Criar projeto em [supabase.com](https://supabase.com) — free tier, região São Paulo
+2. Settings → Database → copiar a **Connection string** (use o pooler na porta 6543 pra dev/prod, ou 5432 direto)
+3. Settings → API → copiar `Project URL` se for usar Supabase Storage depois
+
+### 3. Configurar `.env`
+
+```bash
+cp .env.example .env
+```
+
+Preencha pelo menos:
+
+- `DATABASE_URL` — do Supabase
+- `NEXTAUTH_SECRET` — gere com `openssl rand -base64 32`
+- `SEED_ADMIN_EMAIL`, `SEED_ADMIN_NAME`, `SEED_ADMIN_PASSWORD` — sua conta admin Vela
+
+Opcional (cada um liga uma feature):
+
+- `RESEND_API_KEY` — emails reais ([resend.com](https://resend.com), free tier 100/dia). Sem ele, emails caem em console.log
+- `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET` — login com Google
+- `AZURE_AD_CLIENT_ID` + `AZURE_AD_CLIENT_SECRET` — login com Microsoft
+
+### 4. Criar tabelas e seed do admin
+
+```bash
+npm run db:generate    # gera o Prisma Client
+npm run db:migrate     # cria as tabelas no Supabase
+npm run db:seed        # cria o usuário VELA_ADMIN do .env
+```
+
+### 5. Rodar o app
+
+```bash
 npm run dev
 ```
 
-- [`http://localhost:3000`](http://localhost:3000) — site de venda
-- [`http://localhost:3000/demo`](http://localhost:3000/demo) — demonstração interativa do dashboard
+- [`http://localhost:3000`](http://localhost:3000) — site público
+- [`http://localhost:3000/entrar`](http://localhost:3000/entrar) — login (use SEED_ADMIN_EMAIL + senha)
+- [`http://localhost:3000/admin`](http://localhost:3000/admin) — painel da equipe Vela (leads, clínicas, auditoria)
+- [`http://localhost:3000/demo`](http://localhost:3000/demo) — pré-visualização estática do produto
+
+### Fluxo de leads end-to-end
+
+1. Visitante preenche `/contratar` → cria `Lead` no DB + email pra `LEAD_NOTIFICATION_EMAIL`
+2. Equipe Vela entra em `/admin/leads`, clica **Aprovar** → cria `Clinic` + `Subscription (trial)` + `Invite` (7 dias) + manda email com link
+3. Lead clica link em `/registrar?token=…` → define senha → cria `User` + `Membership` (role ADMIN da clínica)
+4. Usuário entra em `/entrar` com email + senha (ou OAuth se ligado)
+
+### Comandos úteis
+
+```bash
+npm run db:studio      # abre Prisma Studio (GUI) na porta 5555
+npm run db:reset       # apaga tudo e recria (DEV ONLY)
+npm run lint           # ESLint
+npm run build          # production build
+```
+
+### Roadmap técnico (próximos sprints)
+
+- [ ] Stripe + Mercado Pago pra assinatura Vela (Subscription real, hoje é placeholder)
+- [ ] WhatsApp Business API + OpenAI pra agente Júlia em produção
+- [ ] NF-e via parceiro (NFE.io, eNotas)
+- [ ] Onboarding wizard pós-registro (importar agenda, configurar agentes)
+- [ ] Painel da clínica (`/painel/*`) — hoje só `/admin` existe
 
 ## Estrutura
 

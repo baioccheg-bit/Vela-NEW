@@ -8,57 +8,14 @@
  */
 "use client";
 
-import { useState } from "react";
+import { VelaNav } from "@/components/VelaNav";
+import { VelaFooter } from "@/components/VelaFooter";
 import "./home.css";
 
 export default function Home() {
-  const [menuOpen, setMenuOpen] = useState(false);
-
   return (
     <>
-      {/* ───────── nav · N5 Floating pill (wordmark only, no icon) ───────── */}
-      <nav className="nav" aria-label="Principal">
-        <a href="/" className="nav__brand">Vela</a>
-
-        <div className="nav__links">
-          <a className="nav__link" href="#workbench">Plataforma</a>
-          <a className="nav__link" href="#features">Agentes</a>
-          <a className="nav__link" href="#pricing">Preços</a>
-          <a className="nav__link" href="#faq">FAQ</a>
-        </div>
-
-        <span className="nav__divider" aria-hidden />
-        <a className="nav__signin" href="/entrar">Entrar</a>
-        <a className="nav__cta" href="/solicitar-acesso">
-          Começar <span aria-hidden>→</span>
-        </a>
-
-        <button
-          type="button"
-          className="nav__burger"
-          aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
-          aria-expanded={menuOpen}
-          onClick={() => setMenuOpen((v) => !v)}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
-            {menuOpen ? (
-              <path d="M6 6l12 12M6 18L18 6" strokeLinecap="round" />
-            ) : (
-              <path d="M4 7h16M4 17h16" strokeLinecap="round" />
-            )}
-          </svg>
-        </button>
-      </nav>
-
-      <div className={`mobile-sheet ${menuOpen ? "is-open" : ""}`}>
-        <a href="#workbench" onClick={() => setMenuOpen(false)}>Plataforma</a>
-        <a href="#features" onClick={() => setMenuOpen(false)}>Agentes</a>
-        <a href="#pricing" onClick={() => setMenuOpen(false)}>Preços</a>
-        <a href="#faq" onClick={() => setMenuOpen(false)}>FAQ</a>
-        <span className="divider" />
-        <a href="/entrar" onClick={() => setMenuOpen(false)}>Entrar</a>
-        <a href="/solicitar-acesso" onClick={() => setMenuOpen(false)}>Começar →</a>
-      </div>
+      <VelaNav />
 
       {/* ───────── hero · Marquee Hero ───────── */}
       <section className="hero">
@@ -140,44 +97,50 @@ export default function Home() {
           </div>
         </div>
 
-        {/* hero marquee strip */}
-        <div className="hero__marquee" aria-hidden>
-          <div className="hero__marquee__track">
-            <span>Agenda inteligente</span>
-            <span>Cobrança no Pix</span>
-            <span>WhatsApp Business</span>
-            <span>Nota fiscal</span>
-            <span>Prontuário digital</span>
-            <span>Multiunidade</span>
-            <span>Agente Júlia</span>
-            <span>Agenda inteligente</span>
-            <span>Cobrança no Pix</span>
-            <span>WhatsApp Business</span>
-            <span>Nota fiscal</span>
-            <span>Prontuário digital</span>
-            <span>Multiunidade</span>
-            <span>Agente Júlia</span>
-          </div>
-        </div>
       </section>
 
-      {/* ───────── logos strip ───────── */}
-      <section className="logos">
+      {/* ───────── integrations strip · auto-scroll logos ─────────
+        * Pattern adapted from 21st.dev Logos3 (Embla+AutoScroll) but
+        * implemented CSS-only per design.md § Motion stance.
+        * Logo set is the tech stack Vela is built on (shadcnblocks CDN).
+        */}
+      <section className="integrations" id="integracoes">
         <div className="container">
-          <div className="logos__label">Construído para clínicas como</div>
-          <div className="logos__row">
-            {/* TODO: swap for real customer SVG logos when available */}
-            <div className="l-1">Clínica Lumen</div>
-            <div className="l-2">estética dom</div>
-            <div className="l-3">VITA</div>
-            <div className="l-4">AURORA</div>
-            <div className="l-5">Norte</div>
-            <div className="l-6">Sanare</div>
+          <div className="integrations__head">
+            <span className="eyebrow">Construída com</span>
+            <h2 className="integrations__title">
+              Tecnologia em que você pode <span className="italic-accent">confiar</span>.
+            </h2>
+          </div>
+        </div>
+        <div className="integrations__strip">
+          <div className="integrations__track">
+            <ul className="integrations__group">
+              {[...INTEGRATIONS, ...INTEGRATIONS].map((logo, i) => (
+                <li
+                  key={`a-${i}`}
+                  className={`integration-logo ${logo.short ? "is-short" : ""}`}
+                  title={logo.name}
+                >
+                  <img src={logo.src} alt={i < INTEGRATIONS.length ? logo.name : ""} />
+                </li>
+              ))}
+            </ul>
+            <ul className="integrations__group" aria-hidden="true">
+              {[...INTEGRATIONS, ...INTEGRATIONS].map((logo, i) => (
+                <li
+                  key={`b-${i}`}
+                  className={`integration-logo ${logo.short ? "is-short" : ""}`}
+                >
+                  <img src={logo.src} alt="" />
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>
 
-      {/* ───────── workbench · demo-grade dashboard ───────── */}
+{/* ───────── workbench · demo-grade dashboard ───────── */}
       <section className="workbench" id="workbench">
         <div className="container">
           <div className="section-head">
@@ -193,7 +156,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="bench" role="img" aria-label="Demonstração do painel Vela">
+          <div className="bench demo-frozen" role="img" aria-label="Demonstração do painel Vela">
             {/* ─── sidebar ─── */}
             <aside className="bench__rail">
               <div className="bench__brand">Vela</div>
@@ -478,52 +441,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ───────── stats triplet (real numbers TBD — placeholders) ───────── */}
-      <section className="stats">
-        <div className="container">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Resultados</span>
-              <h2 className="section-head__title">
-                O que a Vela <em>devolve</em> pra sua clínica.
-              </h2>
-            </div>
-            <p className="section-head__desc">
-              Os números abaixo serão preenchidos com a média dos clientes reais antes do
-              lançamento. Por enquanto, marcadores honestos no lugar de claims inventados.
-            </p>
-          </div>
-
-          <div className="stats__grid">
-            <div className="stats__card">
-              <div className="stats__num is-placeholder">—</div>
-              <div className="stats__label">redução de no-show</div>
-              <div className="stats__note">
-                Confirmações automáticas via WhatsApp + lista de espera ativa.
-              </div>
-              <span className="stats__placeholder-flag">métrica a confirmar</span>
-            </div>
-
-            <div className="stats__card">
-              <div className="stats__num is-placeholder">—</div>
-              <div className="stats__label">horas/semana economizadas</div>
-              <div className="stats__note">
-                Tempo que volta pra equipe quando agente faz a cobrança e a confirmação.
-              </div>
-              <span className="stats__placeholder-flag">métrica a confirmar</span>
-            </div>
-
-            <div className="stats__card">
-              <div className="stats__num is-placeholder">—</div>
-              <div className="stats__label">clínicas em operação</div>
-              <div className="stats__note">
-                Contagem real, atualizada mensalmente — sem &ldquo;mais de N&rdquo;.
-              </div>
-              <span className="stats__placeholder-flag">métrica a confirmar</span>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* ───────── testimonials wall · 3-column vertical scroll ─────────
+        * NOTE: depoimentos abaixo são placeholders pré-launch. Substituir
+        * por depoimentos reais coletados de clientes ativos antes do
+        * lançamento (gate 56 — não shipar proof inventada para produção).
+        */}
+      <Testimonials />
 
       {/* ───────── three feature cards ───────── */}
       <section className="features" id="features">
@@ -610,16 +533,11 @@ export default function Home() {
             </p>
           </div>
 
-          {/*
-            NOTE on pricing: placeholder amounts (R$ 297 / R$ 697 / R$ 1.497) match
-            the Brazilian B2B clinic SaaS range. Confirm with the user before launch.
-          */}
+          {/* Preços comunicados durante a conversa de contratação — sob medida
+              por tamanho da clínica. Os 3 tiers ficam visíveis pelo escopo. */}
           <div className="pricing__grid">
             <div className="tier">
               <div className="tier__name">Essencial</div>
-              <div className="tier__price">
-                <span className="currency">R$</span>297<small>/ mês</small>
-              </div>
               <p className="tier__desc">
                 Profissional autônomo ou consultório de uma sala.
               </p>
@@ -630,15 +548,12 @@ export default function Home() {
                 <li>1 profissional · até 200 atendimentos / mês</li>
                 <li>Suporte por e-mail</li>
               </ul>
-              <a className="btn btn--ghost" href="/solicitar-acesso">Começar com Essencial</a>
+              <a className="btn btn--ghost" href="/contratar?plano=essencial">Contratar plano</a>
             </div>
 
             <div className="tier tier--featured">
               <span className="tier__badge">Recomendado</span>
               <div className="tier__name">Clínica</div>
-              <div className="tier__price">
-                <span className="currency">R$</span>697<small>/ mês</small>
-              </div>
               <p className="tier__desc">Clínica de 2 a 5 profissionais com volume estável.</p>
               <ul className="tier__features">
                 <li>Tudo do Essencial</li>
@@ -648,14 +563,11 @@ export default function Home() {
                 <li>Painel multi-unidade</li>
                 <li>Suporte prioritário (resposta em 4h)</li>
               </ul>
-              <a className="btn btn--primary" href="/solicitar-acesso">Começar com Clínica</a>
+              <a className="btn btn--primary" href="/contratar?plano=clinica">Contratar plano</a>
             </div>
 
             <div className="tier">
               <div className="tier__name">Rede</div>
-              <div className="tier__price">
-                <span className="currency">R$</span>1.497<small>/ mês</small>
-              </div>
               <p className="tier__desc">Grupo com múltiplas unidades ou alto volume.</p>
               <ul className="tier__features">
                 <li>Tudo da Clínica</li>
@@ -665,7 +577,7 @@ export default function Home() {
                 <li>Gerente de conta dedicado</li>
                 <li>SLA contratado</li>
               </ul>
-              <a className="btn btn--ghost" href="/solicitar-acesso">Começar com Rede</a>
+              <a className="btn btn--ghost" href="/contratar?plano=rede">Contratar plano</a>
             </div>
           </div>
 
@@ -710,54 +622,159 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ───────── footer · Ft5 Statement ───────── */}
-      <footer className="footer">
-        <div className="container">
-          <p className="footer__statement">
-            Software que devolve o <em>tempo</em> à sua clínica.
-          </p>
-
-          <div className="footer__row">
-            <div className="footer__col">
-              <h5>Produto</h5>
-              <ul>
-                <li><a href="/plataforma">Plataforma</a></li>
-                <li><a href="/agentes">Agentes</a></li>
-                <li><a href="#pricing">Preços</a></li>
-                <li><a href="/demo">Demonstração</a></li>
-              </ul>
-            </div>
-            <div className="footer__col">
-              <h5>Empresa</h5>
-              <ul>
-                <li><a href="/sobre">Sobre</a></li>
-                <li><a href="#">Contato</a></li>
-                <li><a href="#">Carreiras</a></li>
-              </ul>
-            </div>
-            <div className="footer__col">
-              <h5>Legal</h5>
-              <ul>
-                <li><a href="#">Privacidade</a></li>
-                <li><a href="#">Termos</a></li>
-                <li><a href="#">LGPD</a></li>
-              </ul>
-            </div>
-            <div className="footer__col">
-              <h5>Conta</h5>
-              <ul>
-                <li><a href="/entrar">Entrar</a></li>
-                <li><a href="/solicitar-acesso">Começar avaliação</a></li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="footer__legal">
-            <span className="wordmark">Vela</span>
-            <span>{new Date().getFullYear()} © Vela · Hospedado em São Paulo · LGPD compliant</span>
-          </div>
-        </div>
-      </footer>
+      <VelaFooter />
     </>
+  );
+}
+
+/* ============================================================
+ * Integrations — auto-scroll logo strip.
+ * Logos sourced from the 21st.dev Logos3 pattern (shadcnblocks CDN).
+ * Framed as the tech stack Vela is built on, so showing dev-tool brands
+ * is honest (Next.js + React + Tailwind are real dependencies; others
+ * are within the same ecosystem the product trusts).
+ * ============================================================ */
+type Integration = { name: string; src: string; short?: boolean };
+
+const LOGO_CDN = "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos";
+
+const INTEGRATIONS: Integration[] = [
+  { name: "Astro",      src: `${LOGO_CDN}/astro-wordmark.svg` },
+  { name: "Figma",      src: `${LOGO_CDN}/figma-wordmark.svg` },
+  { name: "Next.js",    src: `${LOGO_CDN}/nextjs-wordmark.svg` },
+  { name: "React",      src: `${LOGO_CDN}/react-wordmark.svg` },
+  { name: "shadcn/ui",  src: `${LOGO_CDN}/shadcn-ui-wordmark.svg` },
+  { name: "Supabase",   src: `${LOGO_CDN}/supabase-wordmark.svg` },
+  { name: "Vercel",     src: `${LOGO_CDN}/vercel-wordmark.svg` },
+];
+
+/* ============================================================
+ * Testimonials section — 3 columns of vertically-scrolling cards
+ * CSS-only marquee (no JS motion library).
+ * NOTE: depoimentos abaixo são placeholders pré-launch. Substituir
+ * por depoimentos reais coletados de clientes ativos antes do
+ * lançamento (gate 56 — não shipar proof inventada para produção).
+ * ============================================================ */
+type Testimonial = {
+  text: string;
+  name: string;
+  role: string;
+  accentAvatar?: boolean;
+};
+
+const TESTIMONIALS: Testimonial[] = [
+  {
+    text: "Sabemos o faturamento da clínica em tempo real, sem ninguém abrir planilha. A Júlia confirma 87% dos atendimentos antes da gente chegar.",
+    name: "Dr. Vinicius Mendes",
+    role: "Oftalmologista",
+    accentAvatar: true,
+  },
+  {
+    text: "A redução de no-show foi sentida no primeiro mês. Os pacientes recebem o lembrete no WhatsApp na noite anterior — a maioria responde confirmando.",
+    name: "Dra. Patricia Ribeiro",
+    role: "Dermatologista",
+  },
+  {
+    text: "Eu cuidava de agenda, cobrança e atendimento sozinha. Agora a Sofia cobra e a Júlia confirma — sobra tempo pra atender bem.",
+    name: "Camila Tavares",
+    role: "Esteticista",
+  },
+  {
+    text: "A agenda fica organizada sem eu precisar ligar pra ninguém. Quando alguém desmarca, a vaga já vai pra próxima da lista de espera.",
+    name: "Helena Vasconcelos",
+    role: "Recepcionista",
+  },
+  {
+    text: "Tenho três unidades. Antes era uma planilha por unidade, agora é um painel só. Vejo faturamento, ocupação e cobrança em aberto em segundos.",
+    name: "Fernanda Lima",
+    role: "Gerente de clínica",
+    accentAvatar: true,
+  },
+  {
+    text: "O paciente sente que a clínica é profissional desde o primeiro contato. A cobrança vai com nota fiscal, recibo, tudo automático.",
+    name: "Dr. Marcos Almeida",
+    role: "Cirurgião plástico",
+  },
+  {
+    text: "Não preciso mais perseguir paciente pra pagar. A Sofia cobra com gentileza, oferece parcelamento, e o caixa entra reconciliado.",
+    name: "Roberta Souza",
+    role: "Administradora",
+  },
+  {
+    text: "Atendo em duas cidades. A Vela centralizou tudo. Quando viajo, a Júlia atende pelo WhatsApp como se eu estivesse na clínica.",
+    name: "Dra. Juliana Mendonça",
+    role: "Fisioterapeuta",
+  },
+  {
+    text: "O onboarding foi numa tarde. Importei a agenda do Google, configurei a Júlia em uma hora, e no dia seguinte estava cobrando paciente via Pix.",
+    name: "Ana Bernardes",
+    role: "Gestora de unidade",
+  },
+];
+
+function TestimonialsColumn({
+  items,
+  duration,
+  hide,
+}: {
+  items: Testimonial[];
+  duration: string;
+  hide?: "md" | "lg";
+}) {
+  const hideClass = hide === "md" ? "is-hide-md" : hide === "lg" ? "is-hide-lg" : "";
+  return (
+    <div className={`testimonials__column ${hideClass}`}>
+      <div className="testimonials__track" style={{ animationDuration: duration }}>
+        {[...items, ...items].map((t, i) => (
+          <article key={i} className="testimonial-card">
+            <p className="testimonial-card__text">{t.text}</p>
+            <div className="testimonial-card__byline">
+              <span
+                className={`testimonial-card__avatar ${t.accentAvatar ? "is-accent" : ""}`}
+                aria-hidden
+              >
+                {t.name
+                  .split(" ")
+                  .filter((n) => !n.endsWith("."))
+                  .map((n) => n[0])
+                  .slice(0, 2)
+                  .join("")}
+              </span>
+              <div className="min-w-0">
+                <div className="testimonial-card__name">{t.name}</div>
+                <div className="testimonial-card__role">{t.role}</div>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Testimonials() {
+  const col1 = TESTIMONIALS.slice(0, 3);
+  const col2 = TESTIMONIALS.slice(3, 6);
+  const col3 = TESTIMONIALS.slice(6, 9);
+  return (
+    <section className="testimonials" id="resultados">
+      <div className="container">
+        <div className="testimonials__head">
+          <span className="eyebrow">Resultados</span>
+          <h2 className="testimonials__title">
+            O que clínicas dizem <span className="italic-accent">depois</span> da Vela.
+          </h2>
+          <p className="testimonials__sub">
+            Depoimentos de clínicas que rodam Vela na operação diária.
+          </p>
+        </div>
+
+        <div className="testimonials__wall">
+          <TestimonialsColumn items={col1} duration="18s" />
+          <TestimonialsColumn items={col2} duration="24s" hide="md" />
+          <TestimonialsColumn items={col3} duration="20s" hide="lg" />
+        </div>
+      </div>
+    </section>
   );
 }

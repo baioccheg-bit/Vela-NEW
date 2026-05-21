@@ -1,371 +1,302 @@
-"use client";
+import { VelaNav } from "@/components/VelaNav";
+import { VelaFooter } from "@/components/VelaFooter";
+import Link from "next/link";
+import "../home.css";
 
-import { motion } from "framer-motion";
-import { Navbar, Footer, LinkButton } from "@/components";
-import { useState } from "react";
-
-const fadeInUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } },
+export const metadata = {
+  title: "Plataforma — Vela",
+  description:
+    "Uma plataforma só, conectando agenda, cobrança, WhatsApp, prontuário e múltiplas unidades. Operação em tempo real, controle por papel, integrações nativas.",
 };
-
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.12, delayChildren: 0.1 },
-  },
-};
-
-function ArrowIcon({ className = "w-4 h-4" }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M7 17L17 7M17 7H7M17 7V17" />
-    </svg>
-  );
-}
-
-const modules = [
-  {
-    title: "Controle Financeiro",
-    slug: "financeiro",
-    description: "Automatize cobranças, reconciliação bancária e emissão de notas fiscais. Tenha visibilidade completa do faturamento em tempo real.",
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-    features: ["Cobrança automática", "Reconciliação bancária", "Notas fiscais", "Relatórios financeiros", "Fluxo de caixa"],
-    visual: (
-      <div className="bg-obsidian rounded-xl p-4">
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-sm font-cormorant text-ivory">Faturamento Mensal</span>
-          <span className="text-xs text-ivory/50">Dez 2025</span>
-        </div>
-        <div className="flex items-end gap-2 h-24">
-          {[45, 62, 38, 71, 55, 82, 67].map((h, i) => (
-            <div key={i} className="flex-1 bg-champagne/20 rounded-t-sm relative">
-              <div className="absolute bottom-0 left-0 right-0 bg-champagne rounded-t-sm" style={{ height: `${h}%` }} />
-            </div>
-          ))}
-        </div>
-        <div className="flex justify-between mt-2 text-[10px] text-ivory/40">
-          {["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"].map((d) => (
-            <span key={d}>{d}</span>
-          ))}
-        </div>
-      </div>
-    ),
-  },
-  {
-    title: "Agenda Inteligente",
-    slug: "agenda",
-    description: "Preenchimento automático de lacunas, confirmações via WhatsApp, lembretes inteligentes e redução de até 38% nas faltas.",
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-    ),
-    features: ["Preenchimento automático", "Confirmação WhatsApp", "Lembretes", "Lista de espera", "Recorrência"],
-    visual: (
-      <div className="bg-white rounded-xl p-4 border border-obsidian/5">
-        <div className="grid grid-cols-7 gap-1 text-center text-[9px] text-obsidian/40 mb-2">
-          {["D", "S", "T", "Q", "Q", "S", "S"].map((d) => (
-            <span key={d}>{d}</span>
-          ))}
-        </div>
-        <div className="grid grid-cols-7 gap-1">
-          {Array.from({ length: 35 }).map((_, i) => (
-            <div
-              key={i}
-              className={`aspect-square rounded text-[9px] flex items-center justify-center ${
-                [5, 12, 19, 26].includes(i) ? "bg-champagne text-obsidian font-medium" :
-                [8, 15, 22, 29].includes(i) ? "bg-deep-teal/10 text-deep-teal" :
-                i < 31 ? "text-obsidian/60" : "text-transparent"
-              }`}
-            >
-              {i + 1}
-            </div>
-          ))}
-        </div>
-      </div>
-    ),
-  },
-  {
-    title: "Prontuários",
-    slug: "prontuarios",
-    description: "Registros clínicos organizados, seguros e de fácil acesso. Templates personalizáveis e histórico completo do paciente.",
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-    ),
-    features: ["Templates personalizados", "Histórico completo", "Anexos e imagens", "Assinatura digital", "Busca inteligente"],
-    visual: (
-      <div className="bg-ivory rounded-xl p-4 border border-obsidian/5">
-        <div className="space-y-2">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="flex items-center gap-3 p-2 bg-white rounded-lg">
-              <div className="w-8 h-8 rounded-lg bg-deep-teal/10 flex items-center justify-center">
-                <svg className="w-4 h-4 text-deep-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <div className="flex-1">
-                <div className="h-2 w-24 bg-obsidian/20 rounded" />
-                <div className="h-1.5 w-16 bg-obsidian/10 rounded mt-1" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    ),
-  },
-  {
-    title: "Central de Documentos",
-    slug: "documentos",
-    description: "Organize contratos, termos de consentimento e documentos operacionais. Assinatura eletrônica integrada e controle de versões.",
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-      </svg>
-    ),
-    features: ["Assinatura eletrônica", "Controle de versões", "Pastas personalizadas", "Permissões de acesso", "Busca full-text"],
-    visual: (
-      <div className="bg-white rounded-xl p-4 border border-obsidian/5">
-        <div className="space-y-2">
-          {["Contrato de Prestação", "Termo de Consentimento", "Anamnese"].map((doc, i) => (
-            <div key={i} className="flex items-center gap-3 p-2.5 hover:bg-obsidian/5 rounded-lg transition-colors cursor-pointer">
-              <div className="w-9 h-9 rounded-lg bg-champagne/10 flex items-center justify-center">
-                <svg className="w-4 h-4 text-champagne" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <div className="flex-1">
-                <div className="text-sm text-obsidian">{doc}</div>
-                <div className="text-[10px] text-obsidian/40">Atualizado há {i + 2} dias</div>
-              </div>
-              <span className="text-[10px] text-champagne bg-champagne/10 px-2 py-0.5 rounded-full">PDF</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    ),
-  },
-];
 
 export default function PlataformaPage() {
   return (
-    <div className="min-h-screen bg-ivory">
-      <Navbar />
-      <main className="pt-20">
-        {/* Hero Section */}
-        <section className="relative py-24 md:py-32 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-ivory via-white to-ivory" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-champagne/5 rounded-full blur-[120px]" />
-
-          <div className="max-w-5xl mx-auto px-6 text-center relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-champagne/10 border border-champagne/20 mb-8"
-            >
-              <span className="w-2 h-2 rounded-full bg-champagne animate-pulse" />
-              <span className="text-sm text-obsidian/80 font-medium">Plataforma completa</span>
-            </motion.div>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="font-cormorant text-5xl md:text-6xl lg:text-7xl font-semibold text-obsidian leading-[1.1]"
-            >
-              Tudo que sua clínica precisa<br />em um só lugar.
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="mt-6 text-lg text-obsidian/60 max-w-2xl mx-auto"
-            >
-              Módulos integrados que conversam entre si, eliminando retrabalho e dando visibilidade completa da sua operação.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="mt-10 flex flex-wrap items-center justify-center gap-4"
-            >
-              <LinkButton href="/solicitar-acesso" size="lg">
-                Solicitar acesso
-              </LinkButton>
-              <LinkButton href="#modulos" variant="outline" size="lg">
-                Conhecer módulos
-              </LinkButton>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Modules Grid */}
-        <section id="modulos" className="py-24 bg-white">
-          <div className="max-w-7xl mx-auto px-6">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-              className="text-center mb-16"
-            >
-              <motion.h2 variants={fadeInUp} className="font-cormorant text-4xl md:text-5xl text-obsidian">
-                Módulos da plataforma
-              </motion.h2>
-              <motion.p variants={fadeInUp} className="mt-4 text-obsidian/60 max-w-2xl mx-auto">
-                Cada módulo foi desenhado para resolver uma dor específica da gestão de clínicas.
-              </motion.p>
-            </motion.div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              {modules.map((module, i) => (
-                <motion.div
-                  key={module.slug}
-                  initial={{ opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="group relative p-8 rounded-3xl bg-ivory border border-obsidian/5 hover:border-champagne/30 transition-all duration-500 overflow-hidden"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-champagne/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                  <div className="relative z-10">
-                    <div className="flex items-start justify-between mb-6">
-                      <div className="w-14 h-14 rounded-2xl bg-champagne/10 flex items-center justify-center text-champagne group-hover:scale-110 transition-transform duration-500">
-                        {module.icon}
-                      </div>
-                      <LinkButton href={`/plataforma/${module.slug}`} variant="ghost" size="sm">
-                        Saiba mais <ArrowIcon className="w-4 h-4 ml-1" />
-                      </LinkButton>
-                    </div>
-
-                    <h3 className="font-cormorant text-2xl md:text-3xl text-obsidian mb-3">
-                      {module.title}
-                    </h3>
-                    <p className="text-obsidian/60 leading-relaxed mb-6">
-                      {module.description}
-                    </p>
-
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {module.features.map((feature) => (
-                        <span
-                          key={feature}
-                          className="px-3 py-1.5 rounded-full bg-white border border-obsidian/5 text-xs text-obsidian/70"
-                        >
-                          {feature}
-                        </span>
-                      ))}
-                    </div>
-
-                    <div className="mt-6">{module.visual}</div>
-                  </div>
-                </motion.div>
-              ))}
+    <>
+      <VelaNav />
+      <main>
+        {/* ───────── hero ───────── */}
+        <section className="page-hero">
+          <div className="container">
+            <span className="eyebrow">Plataforma</span>
+            <h1 className="page-hero__title">
+              Uma plataforma só. <span className="italic-accent">Todo o resto</span> some.
+            </h1>
+            <p className="page-hero__sub">
+              Agenda, cobrança, prontuário, WhatsApp e múltiplas unidades operando
+              no mesmo painel. Em tempo real. Sem exportar planilha. Sem trocar de
+              aba. Sem pedir pro contador.
+            </p>
+            <div className="page-hero__ctas">
+              <Link href="/contratar" className="btn btn--primary">
+                Contratar plano <span aria-hidden>→</span>
+              </Link>
+              <Link href="/demo" className="btn btn--ghost">
+                Ver pré-visualização
+              </Link>
             </div>
           </div>
         </section>
 
-        {/* Integration Section */}
-        <section className="py-24 md:py-32 bg-ivory">
-          <div className="max-w-5xl mx-auto px-6">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-              className="text-center"
-            >
-              <motion.h2
-                variants={fadeInUp}
-                className="font-cormorant text-4xl md:text-5xl text-obsidian mb-6"
-              >
-                Integração total entre módulos
-              </motion.h2>
-              <motion.p
-                variants={fadeInUp}
-                className="text-obsidian/60 max-w-2xl mx-auto mb-12"
-              >
-                Quando um paciente agenda uma consulta, todo o fluxo é automático: confirmação, cobrança, prontuário e nota fiscal.
-              </motion.p>
-
-              {/* Integration diagram */}
-              <motion.div
-                variants={fadeInUp}
-                className="relative p-8 rounded-3xl bg-white border border-obsidian/5"
-              >
-                <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8">
-                  {modules.map((m, i) => (
-                    <div
-                      key={m.slug}
-                      className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-ivory hover:bg-champagne/10 transition-colors"
-                    >
-                      <div className="w-12 h-12 rounded-xl bg-champagne/10 flex items-center justify-center text-champagne">
-                        {m.icon}
-                      </div>
-                      <span className="text-sm font-medium text-obsidian">{m.title.split(" ")[0]}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="absolute inset-0 pointer-events-none">
-                  <svg className="w-full h-full" viewBox="0 0 800 200">
-                    <path
-                      d="M100 100 Q400 50 700 100"
-                      stroke="#C9A96E"
-                      strokeWidth="1"
-                      fill="none"
-                      strokeDasharray="4 4"
-                      opacity="0.5"
-                    />
-                  </svg>
-                </div>
-              </motion.div>
-            </motion.div>
+        {/* ───────── feature 1 · agenda ───────── */}
+        <section className="feature-row">
+          <div className="container feature-row__inner">
+            <div className="feature-row__text">
+              <span className="eyebrow">Agenda</span>
+              <h2 className="feature-row__title">
+                A agenda que <span className="italic-accent">se mantém</span> sozinha.
+              </h2>
+              <p className="feature-row__desc">
+                Confirmação 24h antes, lembrete 2h antes, lista de espera ativa
+                quando alguém desmarca. Tudo via WhatsApp, em português natural.
+                Não precisa ninguém ligando, lembrando, perseguindo.
+              </p>
+              <ul className="feature-row__points">
+                <li><strong>Vista diária, semanal e mensal</strong> por profissional ou por unidade</li>
+                <li><strong>Lista de espera inteligente</strong> que oferece vagas no momento certo</li>
+                <li><strong>Bloqueios de horário</strong> (almoço, congresso, férias) num clique</li>
+                <li><strong>Importação</strong> de Google Calendar, iCloud, planilha</li>
+              </ul>
+            </div>
+            <div className="feature-row__visual">
+              <FakeAgendaCard />
+            </div>
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="py-24 bg-deep-teal">
-          <div className="max-w-4xl mx-auto px-6 text-center">
-            <motion.h2
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="font-cormorant text-4xl md:text-5xl text-ivory mb-6"
-            >
-              Pronto para modernizar sua clínica?
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="text-ivory/60 mb-10"
-            >
-              Agende uma demonstração e veja a plataforma em ação.
-            </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-            >
-              <LinkButton href="/solicitar-acesso" size="lg">
-                Solicitar acesso
-              </LinkButton>
-            </motion.div>
+        {/* ───────── feature 2 · cobrança ───────── */}
+        <section className="feature-row feature-row--reverse">
+          <div className="container feature-row__inner">
+            <div className="feature-row__text">
+              <span className="eyebrow">Cobrança</span>
+              <h2 className="feature-row__title">
+                Cobre. <span className="italic-accent">Receba</span>. Concilie.
+              </h2>
+              <p className="feature-row__desc">
+                Pix gerado e enviado pelo agente Sofia logo após o atendimento.
+                Cartão recorrente pra pacotes. Boleto pra quem prefere. Caixa
+                entra reconciliado, sem ninguém abrir planilha.
+              </p>
+              <ul className="feature-row__points">
+                <li><strong>Pix, cartão e boleto</strong> com as taxas do gateway (Vela não cobra markup)</li>
+                <li><strong>Recorrência automática</strong> em pacotes parcelados</li>
+                <li><strong>Régua de cobrança</strong> configurável (3 dias antes, no dia, 1 dia depois)</li>
+                <li><strong>Notas fiscais</strong> emitidas e enviadas no mesmo fluxo</li>
+              </ul>
+            </div>
+            <div className="feature-row__visual">
+              <FakeBillingCard />
+            </div>
+          </div>
+        </section>
+
+        {/* ───────── feature 3 · WhatsApp ───────── */}
+        <section className="feature-row">
+          <div className="container feature-row__inner">
+            <div className="feature-row__text">
+              <span className="eyebrow">WhatsApp Business</span>
+              <h2 className="feature-row__title">
+                Atendimento que <span className="italic-accent">não dorme</span>.
+              </h2>
+              <p className="feature-row__desc">
+                Conexão oficial WhatsApp Business API. A Júlia responde em português
+                natural, agenda, remarca, cobra. Quando a conversa precisa de
+                gente, ela passa pra equipe com o contexto inteiro — sem o
+                paciente repetir nada.
+              </p>
+              <ul className="feature-row__points">
+                <li><strong>Templates aprovados</strong> pra mensagens fora da janela de 24h</li>
+                <li><strong>Inbox compartilhada</strong> pra toda a equipe ver as conversas</li>
+                <li><strong>Tags + etiquetas</strong> pra organizar pacientes (VIP, em retorno, etc.)</li>
+                <li><strong>Histórico permanente</strong> — nunca perde uma mensagem</li>
+              </ul>
+            </div>
+            <div className="feature-row__visual">
+              <FakeChatCard />
+            </div>
+          </div>
+        </section>
+
+        {/* ───────── live stats strip · "informações ao vivo" ───────── */}
+        <section className="live-strip">
+          <div className="container">
+            <div className="live-strip__head">
+              <span className="eyebrow">Em tempo real</span>
+              <h2 className="live-strip__title">
+                Toda decisão com <span className="italic-accent">o dado certo</span> na mão.
+              </h2>
+              <p className="live-strip__sub">
+                Painel atualizado ao vivo. Faturamento, ocupação, no-show, cobrança
+                em aberto, ranking de profissionais. Tudo enquanto você atende.
+              </p>
+            </div>
+            <div className="live-strip__grid">
+              <LiveStat label="Atendimentos hoje" value="14" unit="" delta="+2 vs ontem" pulse />
+              <LiveStat label="Faturamento semana" value="R$ 18,4" unit="k" delta="+12% vs anterior" />
+              <LiveStat label="Confirmação" value="87" unit="%" delta="+4 pp" />
+              <LiveStat label="Em aberto" value="R$ 3,1" unit="k" delta="2 cobranças" muted />
+            </div>
+          </div>
+        </section>
+
+        {/* ───────── feature pair · multi-unidade + prontuário ───────── */}
+        <section className="feature-pair">
+          <div className="container feature-pair__inner">
+            <article className="feature-pair__card">
+              <span className="eyebrow">Multi-unidade</span>
+              <h3 className="feature-pair__title">
+                <span className="italic-accent">Uma</span> conta, várias clínicas.
+              </h3>
+              <p className="feature-pair__desc">
+                Cada unidade com sua agenda, seu time, seu caixa. Mas tudo num
+                painel só, com permissões por papel — gerente vê só sua unidade,
+                proprietário vê tudo.
+              </p>
+            </article>
+            <article className="feature-pair__card">
+              <span className="eyebrow">Prontuário digital</span>
+              <h3 className="feature-pair__title">
+                Histórico <span className="italic-accent">limpo</span> e auditável.
+              </h3>
+              <p className="feature-pair__desc">
+                Anotações por atendimento, anexos (fotos antes/depois, exames),
+                evolução por paciente. Tudo criptografado, auditável, compliant
+                com Conselho Federal de Medicina.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        {/* ───────── final CTA ───────── */}
+        <section className="cta">
+          <div className="container">
+            <div className="cta__panel">
+              <h2 className="cta__title">
+                Pronta pra ver tudo isso <span className="italic-accent">funcionando</span>?
+              </h2>
+              <p className="cta__sub">
+                Contrate o plano que faz sentido pra sua clínica. Nosso time entra
+                em contato pelo WhatsApp e configura tudo em até 24h.
+              </p>
+              <div className="hero__ctas" style={{ justifyContent: "center" }}>
+                <Link href="/contratar" className="btn btn--primary">
+                  Contratar plano <span aria-hidden>→</span>
+                </Link>
+                <Link href="/demo" className="btn btn--ghost">
+                  Ver pré-visualização
+                </Link>
+              </div>
+            </div>
           </div>
         </section>
       </main>
-      <Footer />
+      <VelaFooter />
+    </>
+  );
+}
+
+/* ─── visual mockups ─── */
+function FakeAgendaCard() {
+  const rows = [
+    { time: "14:30", name: "Ana Beatriz", state: "agora", cls: "now" },
+    { time: "15:00", name: "Carlos Mendes", state: "confirmado", cls: "ok" },
+    { time: "15:45", name: "Beatriz Costa", state: "aguarda", cls: "wait" },
+    { time: "16:30", name: "Roberto Lima", state: "confirmado", cls: "ok" },
+    { time: "17:00", name: "Fernanda M.", state: "novo", cls: "new" },
+  ];
+  return (
+    <div className="mockup mockup--tilt">
+      <div className="mockup__head">
+        <div>
+          <div className="mockup__title">Hoje</div>
+          <div className="mockup__subtitle">Dra. Helena · 14 atendimentos</div>
+        </div>
+        <span className="mockup__tag"><span className="dot" aria-hidden /> ao vivo</span>
+      </div>
+      <div className="mockup__rows">
+        {rows.map((r) => (
+          <div key={r.time} className={`mockup__row ${r.cls === "now" ? "is-now" : ""}`}>
+            <span className="mockup__time">{r.time}</span>
+            <span className="mockup__name">{r.name}</span>
+            <span className={`mockup__state state--${r.cls}`}>{r.state}</span>
+          </div>
+        ))}
+      </div>
+      <div className="mockup__foot">
+        <span>Ocupação</span>
+        <span className="num">87%</span>
+      </div>
+    </div>
+  );
+}
+
+function FakeBillingCard() {
+  const rows = [
+    { name: "Pacote estética · Beatriz Costa", val: "R$ 1.450", state: "Pago", cls: "ok" },
+    { name: "Consulta · Carlos Mendes", val: "R$ 280", state: "Pago", cls: "ok" },
+    { name: "Sessão · Roberto Lima", val: "R$ 350", state: "Aguarda", cls: "wait" },
+    { name: "Pacote facial · Ana Beatriz", val: "R$ 2.100", state: "Pago", cls: "ok" },
+  ];
+  return (
+    <div className="mockup">
+      <div className="mockup__head">
+        <div>
+          <div className="mockup__title">Caixa de hoje</div>
+          <div className="mockup__subtitle">Sofia · 14:32</div>
+        </div>
+        <span className="mockup__tag"><span className="dot" aria-hidden /> sincronizando</span>
+      </div>
+      <div className="mockup__big">R$ 4.180</div>
+      <div className="mockup__bar" aria-hidden><i /></div>
+      <div className="mockup__rows">
+        {rows.map((r) => (
+          <div key={r.name} className="mockup__row">
+            <span className="mockup__name">{r.name}</span>
+            <span className="mockup__price">{r.val}</span>
+            <span className={`mockup__state state--${r.cls}`}>{r.state}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FakeChatCard() {
+  return (
+    <div className="mockup mockup--tilt-rev">
+      <div className="mockup__head">
+        <span className="mockup__avatar">A</span>
+        <div>
+          <div className="mockup__title">Ana Beatriz</div>
+          <div className="mockup__subtitle">
+            <span className="dot dot--green" aria-hidden /> Júlia ativa
+          </div>
+        </div>
+      </div>
+      <div className="mockup__chat">
+        <div className="chat-bubble chat-bubble--in">Oi! Posso confirmar amanhã 14h30?</div>
+        <div className="chat-bubble chat-bubble--out">Confirmado, Ana. Posso já te enviar o link de Pix?</div>
+        <div className="chat-bubble chat-bubble--in">Pode sim</div>
+        <div className="chat-bubble chat-bubble--out">Pronto. R$ 350 · vencimento hoje, 22h.</div>
+      </div>
+    </div>
+  );
+}
+
+function LiveStat({
+  label, value, unit, delta, pulse, muted,
+}: {
+  label: string; value: string; unit?: string; delta?: string; pulse?: boolean; muted?: boolean;
+}) {
+  return (
+    <div className="live-stat">
+      <div className="live-stat__head">
+        <span className="live-stat__label">{label}</span>
+        {pulse && <span className="live-stat__pulse" aria-hidden />}
+      </div>
+      <div className="live-stat__value">
+        {value}{unit && <small>{unit}</small>}
+      </div>
+      {delta && <div className={`live-stat__delta ${muted ? "is-muted" : ""}`}>{delta}</div>}
     </div>
   );
 }

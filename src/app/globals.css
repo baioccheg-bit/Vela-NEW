@@ -110,3 +110,268 @@ button, input, select { font: inherit; color: inherit; }
 ::-webkit-scrollbar-track { background: var(--color-paper-0); }
 ::-webkit-scrollbar-thumb { background: var(--color-ink-3); border-radius: var(--radius-sm); }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-ink-2); }
+
+/* ============================================================
+ * Admin panel (/admin/*) — shared shell + content patterns
+ * ============================================================ */
+.admin-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+  background: var(--color-paper-1);
+  font-family: var(--font-body);
+}
+@media (max-width: 880px) { .admin-shell { grid-template-columns: 1fr; } }
+
+.admin-shell__rail {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-paper-0);
+  border-right: 1px solid var(--color-paper-3);
+  padding: 24px 16px;
+}
+.admin-shell__brand {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-ink-0);
+  padding: 0 12px 24px;
+}
+.admin-shell__brand span {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--color-accent);
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.admin-shell__nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.admin-shell__nav a {
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  color: var(--color-ink-1);
+  font-size: 0.875rem;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.admin-shell__nav a:hover { background: var(--color-paper-2); color: var(--color-ink-0); }
+.admin-shell__profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-top: 1px solid var(--color-paper-3);
+  margin-top: 16px;
+}
+.admin-shell__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-paper-0);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 14px;
+}
+.admin-shell__name { font-size: 0.8rem; font-weight: 500; color: var(--color-ink-0); }
+.admin-shell__email { font-size: 0.7rem; color: var(--color-ink-3); font-family: var(--font-mono); }
+
+.admin-shell__main { padding: 32px clamp(20px, 4vw, 48px); min-width: 0; }
+
+.admin-page__head { margin-bottom: 32px; }
+.admin-page__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--color-ink-0);
+  margin: 8px 0 0;
+}
+.admin-page__sub {
+  margin-top: 12px;
+  color: var(--color-ink-2);
+  font-size: 0.9rem;
+  max-width: 60ch;
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 32px;
+}
+.admin-stat {
+  position: relative;
+  background: var(--color-paper-0);
+  border: 1px solid var(--color-paper-3);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  overflow: hidden;
+}
+.admin-stat.is-accent::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 20px;
+  right: 20px;
+  height: 2px;
+  background: var(--color-accent);
+}
+.admin-stat__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-ink-2);
+}
+.admin-stat__value {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--color-ink-0);
+  margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-card {
+  background: var(--color-paper-0);
+  border: 1px solid var(--color-paper-3);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.admin-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-paper-3);
+}
+.admin-card__head h2 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 0;
+  color: var(--color-ink-0);
+}
+.admin-card__link {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-accent);
+}
+.admin-empty {
+  padding: 32px;
+  text-align: center;
+  color: var(--color-ink-2);
+  font-size: 0.9rem;
+}
+
+.admin-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.admin-table thead tr {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-ink-3);
+}
+.admin-table th { text-align: left; font-weight: 400; padding: 12px 20px; }
+.admin-table tbody tr { border-top: 1px solid var(--color-paper-3); }
+.admin-table td { padding: 14px 20px; color: var(--color-ink-1); }
+.admin-table td strong { color: var(--color-ink-0); font-weight: 500; }
+
+.admin-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.admin-pill.is-new { background: var(--color-accent); color: var(--color-paper-0); }
+.admin-pill.is-ok { background: color-mix(in oklch, var(--color-success) 14%, transparent); color: var(--color-success); }
+.admin-pill.is-wait { border: 1px solid var(--color-paper-3); color: var(--color-ink-2); }
+.admin-pill.is-muted { background: var(--color-paper-2); color: var(--color-ink-3); }
+
+.admin-leads { display: flex; flex-direction: column; gap: 16px; }
+.admin-lead {
+  background: var(--color-paper-0);
+  border: 1px solid var(--color-paper-3);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+.admin-lead__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 16px; }
+.admin-lead__name {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--color-ink-0);
+  margin: 0 0 4px;
+}
+.admin-lead__meta { font-size: 0.8rem; color: var(--color-ink-2); }
+.admin-lead__meta strong { color: var(--color-ink-1); font-weight: 500; }
+
+.admin-lead__contact {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 12px;
+  background: var(--color-paper-1);
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+}
+.admin-lead__contact > div { display: flex; flex-direction: column; gap: 2px; }
+.admin-lead__contact dt { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--color-ink-3); margin: 0; }
+.admin-lead__contact dd { margin: 0; color: var(--color-ink-1); }
+.admin-lead__contact a { color: var(--color-accent); }
+
+.admin-lead__actions { display: flex; flex-direction: column; gap: 10px; }
+.admin-lead__actions .btn { align-self: flex-start; }
+.admin-lead__hint { font-size: 0.8rem; color: var(--color-ink-2); font-style: italic; }
+.admin-lead__result { padding: 10px 12px; border-radius: var(--radius-md); font-size: 0.8rem; line-height: 1.5; }
+.admin-lead__result.is-ok { background: color-mix(in oklch, var(--color-success) 14%, transparent); color: var(--color-success); }
+.admin-lead__result.is-err { background: color-mix(in oklch, var(--color-warning) 14%, transparent); color: var(--color-warning); }
+.admin-lead__result code { background: rgba(255, 255, 255, 0.4); padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+
+/* ============================================================
+ * .demo-frozen — applied to /demo layout root AND .bench inline.
+ * Makes the dashboard behave like a static image: no clicks,
+ * no hovers, no animations, no transitions. Scroll still works
+ * (scroll is a document-level event, not pointer events).
+ * v2: bumped specificity to override Tailwind hover utilities.
+ * ============================================================ */
+.demo-frozen {
+  pointer-events: none !important;
+  cursor: default !important;
+}
+.demo-frozen *,
+.demo-frozen *::before,
+.demo-frozen *::after {
+  pointer-events: none !important;
+  cursor: default !important;
+  animation: none !important;
+  transition: none !important;
+}
+/* Defeat any inline hover/focus styling that might still flicker. */
+.demo-frozen *:hover,
+.demo-frozen *:focus,
+.demo-frozen *:active,
+.demo-frozen *:focus-visible {
+  background-color: inherit !important;
+  color: inherit !important;
+  transform: none !important;
+  box-shadow: inherit !important;
+  outline: none !important;
+}

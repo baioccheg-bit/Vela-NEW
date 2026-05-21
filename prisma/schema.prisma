@@ -1,7 +1,13 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// Vela — Prisma schema
+// ──────────────────────────────────────────────────────────────────
+// Modela: contas NextAuth, multi-tenancy (Clinic + Membership),
+// leads do funil de venda, convites, pacientes e atendimentos básicos,
+// assinatura (placeholder pra Stripe) e log de auditoria pra LGPD.
+//
+// Comandos úteis:
+//   npx prisma migrate dev --name init    # cria as tabelas
+//   npx prisma db seed                    # popula admin user
+//   npx prisma studio                     # GUI pra explorar dados
 
 generator client {
   provider = "prisma-client"
@@ -10,4 +16,293 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  // url vem de prisma.config.ts (Prisma 7+) via process.env.DATABASE_URL
+}
+
+// ══════════════════════════════════════════════════════════════════
+// NextAuth core (https://authjs.dev/reference/adapter/prisma)
+// ══════════════════════════════════════════════════════════════════
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ══════════════════════════════════════════════════════════════════
+// Vela domain
+// ══════════════════════════════════════════════════════════════════
+
+/// Vela team members have role = "VELA_ADMIN".
+/// Clinic users have role = "CUSTOMER" + a Membership per Clinic.
+enum UserRole {
+  VELA_ADMIN
+  CUSTOMER
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  /// bcrypt hash; null se usuário só usa magic link ou OAuth
+  passwordHash  String?
+  role          UserRole  @default(CUSTOMER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  memberships   Membership[]
+  approvedLeads Lead[]        @relation("LeadApprover")
+  sentInvites   Invite[]      @relation("InviteSender")
+  auditLogs     AuditLog[]
+}
+
+model Clinic {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  cnpj      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships  Membership[]
+  invites      Invite[]
+  patients     Patient[]
+  appointments Appointment[]
+  subscription Subscription?
+  auditLogs    AuditLog[]
+}
+
+enum MembershipRole {
+  ADMIN          // dono / sócio
+  MANAGER        // gerente
+  RECEPTIONIST   // recepção
+  FINANCE        // financeiro
+  PROFESSIONAL   // médico, esteticista, fisio
+}
+
+model Membership {
+  id        String         @id @default(cuid())
+  userId    String
+  clinicId  String
+  role      MembershipRole @default(PROFESSIONAL)
+  createdAt DateTime       @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, clinicId])
+}
+
+// ── Leads (formulário /contratar) ─────────────────────────────────
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  APPROVED
+  REJECTED
+}
+
+enum LeadPlan {
+  ESSENCIAL
+  CLINICA
+  REDE
+  UNDECIDED
+}
+
+model Lead {
+  id         String     @id @default(cuid())
+  nome       String
+  sobrenome  String
+  whatsapp   String
+  email      String
+  cargo      String
+  clinica    String
+  plano      LeadPlan   @default(UNDECIDED)
+  status     LeadStatus @default(NEW)
+  /// notas internas da equipe Vela
+  notes      String?    @db.Text
+
+  approvedById String?
+  approvedAt   DateTime?
+  approver     User?     @relation("LeadApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ── Invites (criados na aprovação de lead) ───────────────────────
+
+model Invite {
+  id          String         @id @default(cuid())
+  /// token aleatório usado em /registrar?token=…
+  token       String         @unique
+  email       String
+  clinicId    String
+  role        MembershipRole @default(ADMIN)
+  expiresAt   DateTime
+  usedAt      DateTime?
+  invitedById String?
+
+  clinic    Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  invitedBy User?  @relation("InviteSender", fields: [invitedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([token])
+}
+
+// ── Pacientes (escopo MVP, expand depois) ────────────────────────
+
+enum PatientTag {
+  VIP
+  ACTIVE
+  NEW
+  INACTIVE
+}
+
+model Patient {
+  id        String      @id @default(cuid())
+  clinicId  String
+  nome      String
+  sobrenome String
+  email     String?
+  whatsapp  String?
+  cpf       String?
+  birthDate DateTime?
+  tag       PatientTag  @default(NEW)
+  notes     String?     @db.Text
+
+  clinic       Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  appointments Appointment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clinicId])
+  @@index([clinicId, tag])
+}
+
+// ── Agendamentos (escopo MVP) ────────────────────────────────────
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  ATTENDED
+  CANCELLED
+  NO_SHOW
+}
+
+model Appointment {
+  id           String            @id @default(cuid())
+  clinicId     String
+  patientId    String
+  /// pode ser null se o profissional ainda não foi atribuído
+  professional String?
+  procedure    String
+  startsAt     DateTime
+  durationMin  Int               @default(60)
+  status       AppointmentStatus @default(SCHEDULED)
+  value        Int?              // centavos; null = a definir
+  notes        String?           @db.Text
+
+  clinic  Clinic  @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clinicId, startsAt])
+  @@index([patientId])
+}
+
+// ── Subscription (placeholder, ligar Stripe depois) ──────────────
+
+enum SubscriptionPlan {
+  TRIAL
+  ESSENCIAL
+  CLINICA
+  REDE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  TRIAL
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  clinicId             String             @unique
+  plan                 SubscriptionPlan   @default(TRIAL)
+  status               SubscriptionStatus @default(TRIAL)
+  /// IDs do Stripe quando for ligado
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  currentPeriodEnd     DateTime?
+  trialEndsAt          DateTime?
+
+  clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ── Audit log (LGPD compliance basics) ───────────────────────────
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  userId       String?
+  clinicId     String?
+  action       String   // ex: "lead.create", "lead.approve", "user.login"
+  resourceType String?
+  resourceId   String?
+  metadata     Json?
+  ipAddress    String?
+  userAgent    String?  @db.Text
+  createdAt    DateTime @default(now())
+
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  clinic Clinic? @relation(fields: [clinicId], references: [id], onDelete: SetNull)
+
+  @@index([clinicId, createdAt])
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
 }
