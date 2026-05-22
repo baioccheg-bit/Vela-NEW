@@ -24,7 +24,6 @@ const navLinks = [
   { label: "Agentes", href: "/agentes" },
   { label: "Planos", href: "/planos" },
   { label: "Sobre", href: "/sobre" },
-  { label: "Demo", href: "/demo" },
 ];
 
 export function Navbar() {

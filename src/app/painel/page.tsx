@@ -5,7 +5,7 @@ import { requireMembership } from "@/lib/auth/session";
 import { getKPIs, getTodayAppointments, getWeeklyRevenue } from "./lib/queries";
 
 export default async function DemoOverviewPage() {
-  const { clinicId } = await requireMembership("/demo");
+  const { clinicId } = await requireMembership("/painel");
   const [kpis, revenue, todays] = await Promise.all([
     getKPIs(clinicId),
     getWeeklyRevenue(clinicId),

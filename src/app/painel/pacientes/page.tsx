@@ -3,7 +3,7 @@ import { getPatients } from "../lib/queries";
 import { PacientesClient } from "./PacientesClient";
 
 export default async function PacientesPage() {
-  const { clinicId } = await requireMembership("/demo/pacientes");
+  const { clinicId } = await requireMembership("/painel/pacientes");
   const patients = await getPatients(clinicId);
 
   // Serializa Decimal/Date pra propriedades plain (Server→Client boundary)

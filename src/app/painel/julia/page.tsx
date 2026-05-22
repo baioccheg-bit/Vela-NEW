@@ -9,7 +9,7 @@ const timeFmt = new Intl.DateTimeFormat("pt-BR", {
 });
 
 export default async function JuliaPage() {
-  const { clinicId } = await requireMembership("/demo/julia");
+  const { clinicId } = await requireMembership("/painel/julia");
   const rows = await getJuliaConversations(clinicId);
 
   const conversations: ConversationView[] = rows.map((c) => ({

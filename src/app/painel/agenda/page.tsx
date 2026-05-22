@@ -21,7 +21,7 @@ const statusLabels: Record<AppointmentStatus, string> = {
 const legendOrder: AppointmentStatus[] = ["CONFIRMADO", "ATENDIDO", "PENDENTE", "CANCELADO"];
 
 export default async function AgendaPage() {
-  const { clinicId } = await requireMembership("/demo/agenda");
+  const { clinicId } = await requireMembership("/painel/agenda");
   const { weekDays, todayIndex, slots } = await getWeekAgenda(clinicId);
 
   return (

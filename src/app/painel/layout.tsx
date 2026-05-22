@@ -3,13 +3,13 @@ import { Sidebar } from "./components/Sidebar";
 import { Topbar } from "./components/Topbar";
 
 export const metadata: Metadata = {
-  title: "Vela — Pré-visualização da plataforma",
-  description: "Pré-visualização estática da plataforma Vela. Dados simulados.",
+  title: "Vela — Painel",
+  description: "Painel operacional da clínica.",
 };
 
-export default function DemoLayout({ children }: { children: React.ReactNode }) {
+export default function PainelLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="demo-frozen min-h-screen bg-paper-0 text-ink-0 flex font-body">
+    <div className="min-h-screen bg-paper-0 text-ink-0 flex font-body">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar />

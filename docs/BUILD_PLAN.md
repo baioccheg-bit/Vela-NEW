@@ -30,14 +30,17 @@
 | Fase | Entrega                                                         | Sessões estimadas |
 | ---- | --------------------------------------------------------------- | ----------------- |
 | 1    | Persistência real (substitui mock por Prisma)                   | 2-3               |
-| 2    | CRUDs do core (agenda, pacientes, procedimentos, profissionais) | 4-6               |
-| 3    | Onboarding wizard pós-registro                                  | 1-2               |
-| 4    | Júlia — engine de IA + inbox interno (WhatsApp depois)          | 3-4               |
+| 1.5  | Reposicionamento: `/demo`→`/painel`, destravar, criar `/minha-conta` | 1            |
+| 2    | CRUDs do core (agenda, pacientes, procedimentos, profissionais) + tutorial leve | 4-6   |
+| 3    | (REMOVIDA) Onboarding agora é leve e mora dentro da Fase 2     | —                 |
+| 4    | Júlia — engine de IA + inbox interno + cadastro de paciente via WhatsApp | 3-4      |
 | 5    | Sofia — cobrança Pix com gateway abstrato + mock                | 2-3               |
 | 6    | Subscription billing (Vela cobrando da clínica)                 | 2                 |
 | 7    | NF-e via parceiro                                               | 1-2               |
 
-**MVP fechado ao final da Fase 5.** Fases 6-7 são pré-launch público. Max, Atlas, WhatsApp real e Tauri ficam pós-MVP.
+**MVP fechado ao final da Fase 5.** Fases 6-7 são pré-launch público.
+
+**Pós-MVP:** Tauri (empacotamento desktop Windows/macOS), apps Android/iOS, Max, Atlas, WhatsApp Business API oficial.
 
 ---
 
@@ -64,7 +67,7 @@
 ## Fase 1 — Persistência real
 
 ### Objetivo
-Substituir `src/app/demo/lib/mock-data.ts` por dados vindos do PostgreSQL via Prisma. As 4 rotas (`/demo`, `/demo/agenda`, `/demo/pacientes`, `/demo/julia`) continuam funcionando, sem mudar UI, lendo do DB.
+Substituir `src/app/demo/lib/mock-data.ts` por dados vindos do PostgreSQL via Prisma. As 4 rotas (`/demo`, `/painel/agenda`, `/demo/pacientes`, `/painel/julia`) continuam funcionando, sem mudar UI, lendo do DB.
 
 ### Pré-requisitos
 - Ler: `prisma/schema.prisma`, `src/app/demo/lib/mock-data.ts`, todas as 4 page.tsx em `src/app/demo/`.
@@ -179,82 +182,103 @@ Adicionar back-relations correspondentes em `Clinic`.
 8. Não deletar `mock-data.ts` ainda — só os tipos ficam, dados saem. Tipos podem ser substituídos por inferência de `Prisma.AppointmentGetPayload` etc.
 
 ### Critério de aceite
-- Após rodar `npm run db:seed:demo` numa clínica de teste, abrir `/demo`, `/demo/agenda`, `/demo/pacientes` e ver dados reais do banco.
-- `/demo/julia` mostra lista vazia (sem erro).
+- Após rodar `npm run db:seed:demo` numa clínica de teste, abrir `/demo`, `/painel/agenda`, `/demo/pacientes` e ver dados reais do banco.
+- `/painel/julia` mostra lista vazia (sem erro).
 - Logout → tentar acessar `/demo` → redireciona pra `/entrar`.
 - Usuário de uma clínica não vê dados de outra (testar criando 2 clínicas).
 
 ---
 
-## Fase 2 — CRUDs do core
+## Fase 1.5 — Reposicionamento (concluída)
+
+Renomeou `/demo` → `/painel`, destravou interações (removeu `.demo-frozen`), criou `/minha-conta` como hub pós-login, atualizou redirects, navbar e BUILD_PLAN. Não muda funcionalidade — só prepara o terreno pra Fase 2.
+
+---
+
+## Fase 2 — CRUDs do core + tutorial leve
 
 ### Objetivo
-Permitir criar, editar e cancelar agendamentos, pacientes, procedimentos e profissionais via UI. Todas as mutations via Server Actions com validação Zod e checagem de membership.
+Permitir criar, editar e cancelar agendamentos, pacientes, procedimentos e profissionais via UI. Todas as mutations via Server Actions com validação Zod e checagem de membership. Onboarding agora vive aqui como tutorial não-bloqueante (NÃO há mais wizard obrigatório).
 
 ### Pré-requisitos
-- Fase 1 completa.
-- Ler: rotas atuais de `/demo`, `Button` component.
+- Fase 1 e 1.5 completas.
+- Ler: rotas atuais de `/painel`, `Button` component.
+
+### Princípios de UX (locked)
+
+1. **Cadastro mínimo de paciente: só nome + telefone obrigatórios.** Resto preenche com o tempo. Donos de clínica não têm paciência pra formulário longo.
+2. **Defaults inteligentes pra clínica nova.** No primeiro acesso, a clínica vem com: horário padrão seg-sex 8h-18h + sáb 8h-12h, procedimentos genéricos pré-cadastrados (consulta, avaliação, retorno), usuário admin já vira o primeiro `Professional`. Cliente edita o que não serve.
+3. **Tutorial é flutuante, não-bloqueante.** Checklist no canto + modal de boas-vindas com tour de 90s. Pode pular tudo. App entra usável.
+4. **Importação de Excel/CSV de pacientes na Fase 2.3.** Toda clínica tem caderno/planilha — esse é o primeiro CTA do tutorial.
 
 ### Sub-fases (executar em sessões separadas se necessário)
 
 #### 2.1 — Profissionais
-- Rota nova: `src/app/demo/configuracoes/profissionais/page.tsx` (lista) e `[id]/page.tsx` (edit). Não esquecer de adicionar em `navItems` do Sidebar (seção "Configurações" — nova seção uppercase mono).
+- Rota nova: `src/app/painel/configuracoes/profissionais/page.tsx` (lista) e `[id]/page.tsx` (edit). Já há entrada placeholder no Sidebar (seção "Configurações") — destravar.
 - Form: nome, função, cor (color picker simples ou paleta restrita), ativo.
-- Server Actions em `src/app/demo/configuracoes/profissionais/actions.ts`: `createProfessional`, `updateProfessional`, `deactivateProfessional`.
+- Server Actions em `src/app/painel/configuracoes/profissionais/actions.ts`: `createProfessional`, `updateProfessional`, `deactivateProfessional`.
 
 #### 2.2 — Procedimentos
-- Mesmo padrão: `/demo/configuracoes/procedimentos`.
+- Mesmo padrão: `/painel/configuracoes/procedimentos`.
 - Campos: nome, duração (min), preço base, ativo.
 
-#### 2.3 — Pacientes
-- Editar `/demo/pacientes`: botão "Novo paciente" → modal/drawer com form.
-- Rota detalhe: `/demo/pacientes/[id]` — ficha completa do paciente com histórico de agendamentos (lista somente leitura por enquanto), botão editar.
-- Validação: telefone em E.164, e-mail opcional mas válido se preenchido.
+#### 2.3 — Pacientes (cadastro rápido + importação)
+- Editar `/painel/pacientes`: botão "Novo paciente" → drawer com form **só nome + telefone obrigatórios**. Campos opcionais (e-mail, nascimento, CPF, tag, notas) ficam num "expandir" colapsado.
+- Rota detalhe: `/painel/pacientes/[id]` — ficha completa, edição inline dos campos opcionais.
+- **Importação Excel/CSV:** botão "Importar planilha" → modal de upload. Aceita `.xlsx` e `.csv`. Mapeamento manual de colunas (nome → coluna A, telefone → coluna B). Preview de 5 linhas antes de confirmar. Skipa duplicados por telefone E.164.
+  - Lib autorizada: `xlsx` (única exceção ao "nada de lib nova").
+- Validação: telefone em E.164, e-mail opcional mas válido se preenchido. CPF só valida formato se preenchido.
 
 #### 2.4 — Agendamentos
-- Editar `/demo/agenda`: clicar num slot vazio → drawer "Novo agendamento". Clicar num agendamento existente → drawer "Detalhes" com ações: confirmar, marcar como atendido, cancelar, reagendar.
-- Form de novo agendamento: paciente (autocomplete por nome/telefone), profissional, procedimento, data/hora, duração (default vinda do procedimento), valor (default vindo do procedimento), observações.
+- Editar `/painel/agenda`: clicar num slot vazio → drawer "Novo agendamento". Clicar num agendamento existente → drawer "Detalhes" com ações: confirmar, marcar como atendido, cancelar, reagendar.
+- Form de novo agendamento: paciente (autocomplete por nome/telefone, com botão "+ cadastrar novo" inline), profissional, procedimento, data/hora, duração (default do procedimento), valor (default do procedimento), observações.
 - Validações: data/hora futura, sem conflito de profissional no horário, paciente existe.
-- Server Actions com `revalidatePath('/demo/agenda')` e `/demo`.
+- Server Actions com `revalidatePath('/painel/agenda')` e `/painel`.
+
+#### 2.5 — Tutorial leve (substitui antiga Fase 3)
+- **Modal de welcome** ao primeiro acesso de `/painel`: "Bem-vinda. A Vela já está pronta. Quer um tour de 90 segundos?" — botões "Tour rápido" / "Pular, sei o que fazer". Estado salvo em `User.welcomedAt`.
+- **Checklist flutuante** no canto inferior direito (componente `<OnboardingChecklist/>`):
+  1. ✓ Conta criada
+  2. □ Importar pacientes (CTA → `/painel/pacientes?import=1`)
+  3. □ Convidar equipe (CTA → `/painel/configuracoes/equipe`)
+  4. □ Personalizar horários (CTA → `/painel/configuracoes/horarios`)
+  5. □ Conectar WhatsApp (desabilitado até Fase 4)
+- Cada item desaparece ao concluir OU clicar "marcar como feito". Checklist some inteiro quando vazio OU quando user fecha (flag `Clinic.onboardingDismissedAt`).
+- **Defaults injetados na criação da clínica** (server action de signup/seed): horários padrão, procedimentos genéricos, profissional ADMIN inicial. Ver seção "Defaults" abaixo.
+
+#### 2.6 — Horários de funcionamento
+- Rota: `/painel/configuracoes/horarios`.
+- Schema novo: `BusinessHours { clinicId, weekday (0-6), opensAt (HH:MM), closesAt (HH:MM), active }`.
+- UI: 7 linhas (uma por dia), toggle "abre/fechado", 2 campos de horário.
+- Necessário pra Fase 4 (Júlia valida disponibilidade).
+
+### Defaults injetados (Fase 2.5)
+
+Quando uma `Clinic` é criada (signup ou seed-demo), também criar:
+
+- **BusinessHours:** seg-sex 8:00-18:00, sáb 8:00-12:00, dom fechado.
+- **Procedures (genéricos):** "Consulta", "Retorno", "Avaliação" (duração 30min, preço 0 — clínica edita).
+- **Professional:** o user que criou a clínica vira `Professional` com role livre (ex "Administradora"). Pode desativar depois.
 
 ### Padrões de UI (reuse, não recriar)
-- Drawer/modal: criar componente `src/app/demo/components/Drawer.tsx` seguindo `design.md` — surface sólida `--color-paper-0`, borda `--color-paper-3`, sem gradiente, sem backdrop-blur (só nav floating pill tem). Animação de slide via CSS keyframe simples (≤240ms).
-- Inputs: criar `src/app/demo/components/Field.tsx` com label, input, error. Estilo: borda `--color-paper-3`, focus ring `--color-focus`.
-- Botões: usar o `Button` existente. Variantes primary/secondary já existem.
+- Drawer/modal: criar componente `src/app/painel/components/Drawer.tsx` seguindo `design.md` — surface sólida `--color-paper-0`, borda `--color-paper-3`, sem gradiente, sem backdrop-blur. Animação de slide via CSS keyframe (≤240ms).
+- Inputs: criar `src/app/painel/components/Field.tsx` com label, input, error. Borda `--color-paper-3`, focus ring `--color-focus`.
+- Botões: usar o `Button` existente.
 
 ### Critério de aceite
-- Posso cadastrar 1 profissional, 1 procedimento e 1 paciente, depois agendar pra ele, e ver tudo refletido na visão geral, agenda e ficha do paciente.
+- Posso cadastrar 1 profissional, 1 procedimento e 1 paciente, depois agendar pra ele, e ver tudo refletido na visão geral, agenda e ficha.
+- Cadastro de paciente novo leva ≤15 segundos (só nome + telefone).
+- Posso importar uma planilha Excel com 50 pacientes em ≤2min, sem perder linhas (skip por duplicidade).
 - Tentar agendar 2 atendimentos pro mesmo profissional no mesmo horário → erro claro.
-- Mudar status de um agendamento de PENDENTE → CONFIRMADO → ATENDIDO atualiza UI imediatamente.
-- Cancelar agendamento mantém histórico (não deleta), apenas troca status.
+- Cancelar agendamento mantém histórico (só troca status).
+- Cliente novo (sem dados) entra em `/painel` e vê dashboard funcionando — não vê "vazio assustador".
+- Checklist do onboarding aparece, mas é dispensável.
 
 ---
 
-## Fase 3 — Onboarding wizard
+## Fase 3 — REMOVIDA (substituída pelo tutorial leve na Fase 2.5)
 
-### Objetivo
-Após o lead aceitar o convite e definir senha em `/registrar`, ele cai num wizard de 4 passos que prepara a clínica pra uso real. "Tão fácil quanto bebê" — sem campos opcionais nesta etapa.
-
-### Pré-requisitos
-- Fase 2 completa.
-- Ler: `src/app/registrar/page.tsx` e a action que cria `User` + `Membership` ADMIN.
-
-### Implementação
-
-1. Após criar `User` + `Membership`, redirecionar pra `/demo/inicio` em vez de `/demo` se a clínica ainda não tem `Professional`, `Procedure` ou pelo menos 1 horário configurado.
-2. Criar `src/app/demo/inicio/page.tsx` — wizard com 4 passos:
-   - **Passo 1 — Clínica:** confirmar nome, telefone público, endereço básico. (Hoje só temos nome em `Clinic` — adicionar `phone`, `address`, `city`, `state` em schema. Migration nova.)
-   - **Passo 2 — Profissionais:** adicionar pelo menos 1 (reusa Server Action da Fase 2.1).
-   - **Passo 3 — Procedimentos:** adicionar pelo menos 1 (reusa Server Action da Fase 2.2).
-   - **Passo 4 — Horário de funcionamento:** dia da semana × horário (de/até). Salvar em novo model `BusinessHours` (clinicId, weekday, opensAt, closesAt). Necessário pra Fase 4 (Júlia validar disponibilidade).
-3. Cada passo é uma sub-rota: `/demo/inicio/clinica`, `/demo/inicio/profissionais`, `/demo/inicio/procedimentos`, `/demo/inicio/horarios`. Progress bar mono no topo (1/4, 2/4, etc).
-4. Após o passo 4: marcar `Clinic.onboardedAt = now()`, redirecionar pra `/demo`.
-5. Middleware ou guarda em `layout.tsx` do `/demo`: se `onboardedAt` é null, redirecionar pra `/demo/inicio/<próximo passo pendente>`. Exceção: `/demo/inicio/*` não redireciona.
-
-### Critério de aceite
-- Lead aprovado → recebe email → clica → define senha → cai direto no wizard → completa 4 passos → cai em `/demo` com clínica funcional.
-- Tentar pular um passo via URL direta volta pro passo pendente.
-- Reabrir o app depois de completo NÃO mostra mais o wizard.
+> Decisão (sessão Fase 1.5): o wizard obrigatório de 4 passos afastaria donos de clínica (público com pouco tempo). O onboarding virou tutorial flutuante não-bloqueante que vive dentro da Fase 2 (sub-fase 2.5). Cliente novo entra no app já funcional, com defaults inteligentes, e completa a personalização no próprio ritmo. O modelo `BusinessHours` também migrou pra Fase 2 (sub-fase 2.6).
 
 ---
 
@@ -263,7 +287,7 @@ Após o lead aceitar o convite e definir senha em `/registrar`, ele cai num wiza
 > WhatsApp Business API real fica fora desta fase porque depende de aprovação Meta (4-8 semanas). Construímos a engine com um canal "web" interno; trocar pelo WhatsApp depois é só plugar um adapter.
 
 ### Objetivo
-Júlia conversa com paciente em pt-BR pra: confirmar agendamento, cancelar/reagendar, agendar do zero (consultar disponibilidade real do DB), responder perguntas básicas sobre procedimentos.
+Júlia conversa com paciente em pt-BR pra: confirmar agendamento, cancelar/reagendar, agendar do zero (consultar disponibilidade real do DB), responder perguntas básicas sobre procedimentos, **e cadastrar paciente novo** (extrai nome + telefone da própria conversa, sem ninguém da recepção digitar).
 
 ### Pré-requisitos
 - Fase 3 completa.
@@ -329,9 +353,10 @@ model Message {
      - `cancelAppointment(appointmentId, reason)`
      - `rescheduleAppointment(appointmentId, newStartsAt)`
      - `getPatientByPhone(phone)` → busca paciente da clínica
+     - `createPatient(name, phone, email?)` → cria paciente novo (Júlia chama quando paciente desconhecido entra na conversa)
      - `getProceduresMenu()` → lista procedimentos ativos
    - `runner.ts` — função `processIncomingMessage(conversationId, body)`: carrega últimas N mensagens, chama OpenAI com tools, executa tool calls (sempre validando `clinicId` da conversa), persiste resposta em `Message` (sender = JULIA), retorna resposta. Sempre salvar `toolCalls` pro audit.
-2. Refatorar `/demo/julia/page.tsx`: lista de conversas reais (`getJuliaConversations` da Fase 1, agora populada). Selecionar conversa → painel à direita com histórico de mensagens e input de operador.
+2. Refatorar `/painel/julia/page.tsx`: lista de conversas reais (`getJuliaConversations` da Fase 1, agora populada). Selecionar conversa → painel à direita com histórico de mensagens e input de operador.
 3. Botão "Assumir conversa" → seta `Conversation.takenOver = true`. A partir daí, mensagens novas não vão pra Júlia, só pro inbox do operador. Botão "Devolver pra Júlia" desliga o flag.
 4. Endpoint público `POST /api/webhooks/web-channel` recebe mensagens de teste:
    ```json
@@ -342,7 +367,7 @@ model Message {
 
 ### Critério de aceite
 - Posso fazer um POST de teste pro webhook simulando paciente novo e ver a Júlia responder. Se a mensagem for "quero agendar limpeza de pele dia 30", ela checa disponibilidade real e propõe horários.
-- Conversa aparece em `/demo/julia` em tempo real (recarregar a página por enquanto, polling/realtime na próxima fase).
+- Conversa aparece em `/painel/julia` em tempo real (recarregar a página por enquanto, polling/realtime na próxima fase).
 - Operador consegue assumir e responder.
 - Audit trail: cada Message de Júlia mostra os tool calls no banco.
 
@@ -436,14 +461,14 @@ export function getGateway(): PaymentGateway {
 1. Implementar `mockGateway` em `src/lib/payments/mock.ts` que gera IDs fake e dispara um setTimeout pra simular webhook em 30s. Útil pra dev sem chave de gateway real.
 2. Server Action `markAppointmentAttended(appointmentId)`: atualiza status, cria `Charge` via gateway, salva qrCode/link no banco.
 3. Endpoint `POST /api/webhooks/payment` recebe webhook do gateway. Validar assinatura, mapear pra `Charge`, atualizar status, se PAGA: dispara mensagem da Júlia agradecendo via `Conversation` do paciente (se existir).
-4. UI em `/demo/agenda`: ao marcar como atendido, mostrar QR code Pix num modal + botão "enviar via Júlia". Enviar = chamar `processIncomingMessage` com uma mensagem programada de Sofia (sender = JULIA com tag interna de origem Sofia, ou novo enum SOFIA — preferir adicionar `SOFIA` em `MessageSender`).
-5. Nova rota: `/demo/financeiro` — lista cobranças com filtro por status, totais do mês, badge dos status (reusar `StatusBadge` estendido).
+4. UI em `/painel/agenda`: ao marcar como atendido, mostrar QR code Pix num modal + botão "enviar via Júlia". Enviar = chamar `processIncomingMessage` com uma mensagem programada de Sofia (sender = JULIA com tag interna de origem Sofia, ou novo enum SOFIA — preferir adicionar `SOFIA` em `MessageSender`).
+5. Nova rota: `/painel/financeiro` — lista cobranças com filtro por status, totais do mês, badge dos status (reusar `StatusBadge` estendido).
 
 ### Critério de aceite
 - Marcar agendamento como atendido gera cobrança mockada com QR code visível.
 - Em 30s o webhook mock dispara, status vai pra PAGA, paciente recebe mensagem na conversa.
 - Trocar `PAYMENT_GATEWAY=mock` por outro valor no `.env` quebra com mensagem clara "Gateway X não implementado" (esperado).
-- `/demo/financeiro` mostra cobranças com totais corretos.
+- `/painel/financeiro` mostra cobranças com totais corretos.
 
 ---
 
@@ -460,15 +485,15 @@ A clínica cliente paga mensalidade da Vela. Hoje `Subscription` é placeholder;
 
 1. Adicionar `Plan` model (Starter, Pro, Premium) com `priceMonthly`, `maxPatients`, `maxProfessionals`, `featuresJson`.
 2. Estender `Subscription` com `planId`, `status` (TRIAL, ACTIVE, PAST_DUE, CANCELED), `currentPeriodEnd`, `gatewaySubscriptionId`.
-3. Middleware/guard: se `Subscription.status` é `PAST_DUE` ou `CANCELED` e trial expirou, redirecionar todo `/demo/*` pra `/demo/assinatura`.
-4. Rota `/demo/assinatura`: mostra plano, status, próxima cobrança, botão upgrade/cancelar.
+3. Middleware/guard: se `Subscription.status` é `PAST_DUE` ou `CANCELED` e trial expirou, redirecionar todo `/painel/*` pra `/painel/assinatura`.
+4. Rota `/painel/assinatura`: mostra plano, status, próxima cobrança, botão upgrade/cancelar.
 5. Integração específica do gateway escolhido (Stripe Checkout, Customer Portal, webhooks).
 
 > Essa fase é detalhada na hora porque depende do gateway escolhido. O plano só pré-aloca o espaço.
 
 ### Critério de aceite
 - Clínica em trial vê banner "Faltam X dias do trial".
-- Clínica com pagamento atrasado é bloqueada do `/demo/*` exceto `/demo/assinatura`.
+- Clínica com pagamento atrasado é bloqueada do `/painel/*` exceto `/painel/assinatura`.
 - Webhook do gateway atualiza `Subscription.status` corretamente.
 
 ---
@@ -487,7 +512,7 @@ Emitir NFS-e automaticamente após `Charge.status = PAGA`, via parceiro (NFE.io 
 1. Schema: `FiscalConfig` (cnae, taxRate, certificateRef…), `Invoice` (chargeId, status, xmlUrl, pdfUrl, error).
 2. Abstração `src/lib/invoicing/` no mesmo molde do payment gateway.
 3. Trigger automático: webhook de payment.paid → enfileirar emissão.
-4. Reenvio manual em `/demo/financeiro` quando emissão falha.
+4. Reenvio manual em `/painel/financeiro` quando emissão falha.
 
 ### Critério de aceite
 - Cobrança paga → invoice emitida automaticamente (mock provider).
@@ -497,11 +522,14 @@ Emitir NFS-e automaticamente após `Charge.status = PAGA`, via parceiro (NFE.io 
 
 ## Pós-MVP (fora deste plano)
 
-- **Max (atendimento)** — reavaliar se faz sentido depois de Júlia rodar. Pode virar feature de Júlia em vez de agente separado.
-- **Atlas (análise)** — relatórios, BI básico, exportação.
-- **WhatsApp Business API real** — adapter sobre `Conversation` model; webhook em `/api/webhooks/whatsapp`. Engine de Júlia não muda.
-- **Realtime no inbox de Júlia** — Supabase Realtime ou SSE.
-- **Tauri** — empacotamento desktop, ver `PROMPT_TAURI_DESKTOP.md`.
+Ordem provável (não locked):
+
+1. **Tauri** — empacotamento desktop (Windows + macOS) do `/painel`. Bundle ≤10MB, mesmo código web roda dentro de WebView nativa. Bot ão de download já existe em `/minha-conta` (desabilitado). Ver `PROMPT_TAURI_DESKTOP.md`.
+2. **WhatsApp Business API real** — adapter sobre `Conversation` model; webhook em `/api/webhooks/whatsapp`. Engine de Júlia não muda (já abstraída em Fase 4).
+3. **Apps mobile (Android / iOS)** — provavelmente React Native ou Expo embutindo o WebView do `/painel`. Mesma engine de auth.
+4. **Realtime no inbox de Júlia** — Supabase Realtime ou SSE.
+5. **Max (atendimento)** — reavaliar se faz sentido depois de Júlia rodar. Pode virar feature de Júlia em vez de agente separado.
+6. **Atlas (análise)** — relatórios, BI básico, exportação.
 
 ---
 
@@ -509,10 +537,11 @@ Emitir NFS-e automaticamente após `Charge.status = PAGA`, via parceiro (NFE.io 
 
 Ao terminar cada fase, atualize aqui:
 
-- [ ] Fase 1 — Persistência real
-- [ ] Fase 2 — CRUDs do core
-- [ ] Fase 3 — Onboarding wizard
-- [ ] Fase 4 — Júlia (engine + inbox)
+- [x] Fase 1 — Persistência real
+- [x] Fase 1.5 — Reposicionamento (`/painel`, destravar, `/minha-conta`)
+- [ ] Fase 2 — CRUDs do core + tutorial leve
+- [ ] ~~Fase 3 — Onboarding wizard~~ (absorvida pela Fase 2.5)
+- [ ] Fase 4 — Júlia (engine + inbox + cadastro via WhatsApp)
 - [ ] Fase 5 — Sofia (cobrança Pix)
 - [ ] Fase 6 — Subscription billing
 - [ ] Fase 7 — NF-e

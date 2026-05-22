@@ -1,5 +1,5 @@
 /**
- * Utilitários compartilhados pelas pages do /demo.
+ * Utilitários compartilhados pelas pages do /painel.
  *
  * Tipos e dados de domínio migraram pro Prisma + ./queries.ts.
  * Este arquivo só guarda os formatters pra evitar duplicação.

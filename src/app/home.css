@@ -2614,3 +2614,150 @@ body {
   font-size: var(--text-sm);
 }
 
+/* ============================================================
+ * /minha-conta · hub do usuário logado
+ * ============================================================ */
+.account {
+  min-height: calc(100vh - 80px);
+  padding: 120px 0 var(--space-3xl);
+  background: var(--color-paper-1);
+}
+.account__container { max-width: 980px; }
+.account__header { margin-bottom: var(--space-2xl); }
+.account__title {
+  font-family: var(--font-display);
+  font-size: clamp(var(--text-3xl), 4vw, var(--text-4xl));
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--color-ink-0);
+  margin: var(--space-sm) 0 var(--space-sm);
+  line-height: 1.1;
+}
+.account__sub {
+  color: var(--color-ink-1);
+  font-size: var(--text-md);
+  max-width: 56ch;
+  margin: 0;
+}
+
+.account__grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: var(--space-lg);
+}
+@media (max-width: 720px) {
+  .account__grid { grid-template-columns: 1fr; }
+}
+
+.account-card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-2xl);
+  background: var(--color-paper-0);
+  border: var(--rule-soft);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 20px 50px -40px rgba(20, 50, 60, 0.15);
+}
+.account-card--primary {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklch, var(--color-accent) 6%, var(--color-paper-0)),
+    var(--color-paper-0) 60%
+  );
+}
+.account-card__title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-ink-0);
+  margin: var(--space-xs) 0 var(--space-sm);
+  line-height: 1.15;
+}
+.account-card__sub {
+  color: var(--color-ink-1);
+  font-size: var(--text-sm);
+  margin: 0 0 var(--space-xl);
+  flex: 1;
+}
+.account-card__cta {
+  align-self: flex-start;
+}
+
+.account-card__downloads {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+}
+.account-card__download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  opacity: 0.7;
+}
+.account-card__download:disabled {
+  cursor: not-allowed;
+}
+.account-card__tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-ink-3);
+  border: 1px solid var(--color-paper-3);
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin-left: 6px;
+}
+
+.account__details {
+  margin-top: var(--space-2xl);
+  padding: var(--space-2xl);
+  background: var(--color-paper-0);
+  border: var(--rule-soft);
+  border-radius: var(--radius-xl);
+}
+.account__details__title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-ink-3);
+  margin: 0 0 var(--space-lg);
+  font-weight: 400;
+}
+.account-data {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md) var(--space-xl);
+  margin: 0 0 var(--space-xl);
+}
+@media (max-width: 600px) {
+  .account-data { grid-template-columns: 1fr; }
+}
+.account-data dt {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-ink-3);
+  margin: 0 0 4px;
+}
+.account-data dd {
+  font-size: var(--text-md);
+  color: var(--color-ink-0);
+  margin: 0;
+}
+.account-data__muted { color: var(--color-ink-3); }
+
+.account__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  padding-top: var(--space-md);
+  border-top: var(--rule-soft);
+}
+.account__actions .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+

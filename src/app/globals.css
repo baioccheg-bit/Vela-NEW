@@ -346,29 +346,19 @@ button, input, select { font: inherit; color: inherit; }
 .admin-lead__result code { background: rgba(255, 255, 255, 0.4); padding: 2px 6px; border-radius: 4px; font-size: 11px; }
 
 /* ============================================================
- * .demo-frozen — applied to /demo layout root AND .bench inline.
- * Makes the dashboard behave like a static image: no clicks,
- * no hovers, no animations, no transitions. Scroll still works
- * (scroll is a document-level event, not pointer events).
- * v2: bumped specificity to override Tailwind hover utilities.
+ * .bench-frozen — mockup estático na home (não interativo).
+ * O painel real (/painel) é totalmente clicável, sem essa regra.
  * ============================================================ */
-.demo-frozen {
-  pointer-events: none !important;
-  cursor: default !important;
-}
-.demo-frozen *,
-.demo-frozen *::before,
-.demo-frozen *::after {
+.bench-frozen,
+.bench-frozen * {
   pointer-events: none !important;
   cursor: default !important;
   animation: none !important;
   transition: none !important;
 }
-/* Defeat any inline hover/focus styling that might still flicker. */
-.demo-frozen *:hover,
-.demo-frozen *:focus,
-.demo-frozen *:active,
-.demo-frozen *:focus-visible {
+.bench-frozen *:hover,
+.bench-frozen *:focus,
+.bench-frozen *:active {
   background-color: inherit !important;
   color: inherit !important;
   transform: none !important;

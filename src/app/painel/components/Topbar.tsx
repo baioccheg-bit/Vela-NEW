@@ -3,15 +3,18 @@
 import { usePathname } from "next/navigation";
 
 const titles: Record<string, { title: string; subtitle: string }> = {
-  "/demo": { title: "Visão geral", subtitle: "Resumo operacional da clínica em tempo real" },
-  "/demo/agenda": { title: "Agenda", subtitle: "Semana atual · 20 de maio de 2026" },
-  "/demo/pacientes": { title: "Pacientes", subtitle: "Base ativa e histórico de atendimentos" },
-  "/demo/julia": { title: "Júlia", subtitle: "Agente de WhatsApp · conversas em andamento" },
+  "/painel": { title: "Visão geral", subtitle: "Resumo operacional da clínica em tempo real" },
+  "/painel/agenda": { title: "Agenda", subtitle: "Semana atual" },
+  "/painel/pacientes": { title: "Pacientes", subtitle: "Base ativa e histórico de atendimentos" },
+  "/painel/julia": { title: "Júlia", subtitle: "Agente de WhatsApp · conversas em andamento" },
+  "/painel/configuracoes/profissionais": { title: "Profissionais", subtitle: "Equipe que atende na clínica" },
+  "/painel/configuracoes/procedimentos": { title: "Procedimentos", subtitle: "Tabela de preços e duração" },
+  "/painel/configuracoes/horarios": { title: "Horário de funcionamento", subtitle: "Define quando a Júlia pode agendar" },
 };
 
 export function Topbar() {
   const pathname = usePathname();
-  const meta = titles[pathname] ?? titles["/demo"];
+  const meta = titles[pathname] ?? titles["/painel"];
 
   return (
     <header className="sticky top-0 z-20 bg-paper-0 border-b border-paper-3">

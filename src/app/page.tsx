@@ -156,7 +156,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="bench demo-frozen" role="img" aria-label="Demonstração do painel Vela">
+          <div className="bench bench-frozen" role="img" aria-label="Demonstração do painel Vela">
             {/* ─── sidebar ─── */}
             <aside className="bench__rail">
               <div className="bench__brand">Vela</div>

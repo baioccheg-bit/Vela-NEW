@@ -32,7 +32,7 @@ export type ConversationWithLast = Prisma.ConversationGetPayload<{
   };
 }>;
 
-// ── KPIs (cards do dashboard /demo) ─────────────────────────────
+// ── KPIs (cards do dashboard /painel) ───────────────────────────
 
 export type KPI = {
   label: string;

@@ -37,7 +37,11 @@ function EntrarFallback() {
 function EntrarContent() {
   const router = useRouter();
   const params = useSearchParams();
-  const callbackUrl = params?.get("callbackUrl") ?? "/admin";
+  // Default depende de quem entra: VELA_ADMIN tem /admin como destino natural,
+  // mas a sessão só conhece a role após login. Mandamos todo mundo pra
+  // /minha-conta primeiro — de lá o user navega pro painel da clínica
+  // (ou /admin se for VELA_ADMIN, mostrado por link).
+  const callbackUrl = params?.get("callbackUrl") ?? "/minha-conta";
   const verifyState = params?.get("verify");
   const errorState = params?.get("error");
 
