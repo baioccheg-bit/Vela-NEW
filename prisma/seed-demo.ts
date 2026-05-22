@@ -7,12 +7,15 @@
  * Rode com: npm run db:seed:demo
  */
 import "dotenv/config";
+import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import {
   PrismaClient,
   PatientTag,
   AppointmentStatus,
   MessageSender,
+  MembershipRole,
+  UserRole,
 } from "../src/generated/prisma/client";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
@@ -20,6 +23,9 @@ const prisma = new PrismaClient({ adapter });
 
 const CLINIC_SLUG = "demo";
 const CLINIC_NAME = "Clínica Lumen (demo)";
+const DEMO_USER_EMAIL = "demo@vela.com.br";
+const DEMO_USER_NAME = "Helena Vasconcelos";
+const DEMO_USER_PASSWORD = "demo123";
 
 async function main() {
   console.log("→ Resetando clínica demo…");
@@ -31,6 +37,27 @@ async function main() {
     data: { name: CLINIC_NAME, slug: CLINIC_SLUG },
   });
   console.log(`✓ Clínica criada: ${clinic.id}`);
+
+  // ── Usuário demo + membership (login p/ /demo) ────────────────
+  const passwordHash = await bcrypt.hash(DEMO_USER_PASSWORD, 12);
+  const demoUser = await prisma.user.upsert({
+    where: { email: DEMO_USER_EMAIL },
+    update: { passwordHash, emailVerified: new Date(), name: DEMO_USER_NAME },
+    create: {
+      email: DEMO_USER_EMAIL,
+      name: DEMO_USER_NAME,
+      passwordHash,
+      role: UserRole.CUSTOMER,
+      emailVerified: new Date(),
+    },
+  });
+  // Membership não cascateou junto com a clínica (deletamos a clínica
+  // velha, mas o user demo pode existir de seed anterior sem membership).
+  await prisma.membership.deleteMany({ where: { userId: demoUser.id } });
+  await prisma.membership.create({
+    data: { userId: demoUser.id, clinicId: clinic.id, role: MembershipRole.ADMIN },
+  });
+  console.log(`✓ Usuário demo: ${DEMO_USER_EMAIL} / ${DEMO_USER_PASSWORD}`);
 
   // ── Profissionais ──────────────────────────────────────────────
   const professionals = await Promise.all(
@@ -291,7 +318,9 @@ async function main() {
   }
   console.log(`✓ ${convSeeds.length} conversas`);
 
-  console.log("\n✨ Seed demo concluído. Visite /demo no navegador.");
+  console.log("\n✨ Seed demo concluído.");
+  console.log(`   Login: ${DEMO_USER_EMAIL} / ${DEMO_USER_PASSWORD}`);
+  console.log("   Visite http://localhost:3000/entrar → entra com essas credenciais → /demo");
 }
 
 main()

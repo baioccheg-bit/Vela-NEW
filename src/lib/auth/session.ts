@@ -1,4 +1,5 @@
 import "server-only";
+import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -37,24 +38,14 @@ export async function getCurrentMembership(): Promise<CurrentMembership | null> 
 }
 
 /**
- * Resolve o clinicId para a rota /demo:
- *   - se houver usuário logado com membership, usa o membership ativo
- *   - senão, cai pro slug "demo" (showcase pública)
- *
- * Garante que /demo sempre tem dados pra mostrar mesmo sem auth.
+ * Versão "guard" — para uso em pages/server actions que exigem auth.
+ * Se não houver sessão ou membership, redireciona pra /entrar
+ * (com callback pra voltar pra rota original depois do login).
  */
-export async function getDemoClinicId(): Promise<string> {
+export async function requireMembership(callbackPath: string): Promise<CurrentMembership> {
   const ms = await getCurrentMembership();
-  if (ms) return ms.clinicId;
-
-  const demo = await prisma.clinic.findUnique({
-    where: { slug: "demo" },
-    select: { id: true },
-  });
-  if (!demo) {
-    throw new Error(
-      "Clínica demo não existe. Rode `npm run db:seed:demo` para popular."
-    );
+  if (!ms) {
+    redirect(`/entrar?callbackUrl=${encodeURIComponent(callbackPath)}`);
   }
-  return demo.id;
+  return ms;
 }

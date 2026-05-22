@@ -1,9 +1,9 @@
-import { getDemoClinicId } from "@/lib/auth/session";
+import { requireMembership } from "@/lib/auth/session";
 import { getPatients } from "../lib/queries";
 import { PacientesClient } from "./PacientesClient";
 
 export default async function PacientesPage() {
-  const clinicId = await getDemoClinicId();
+  const { clinicId } = await requireMembership("/demo/pacientes");
   const patients = await getPatients(clinicId);
 
   // Serializa Decimal/Date pra propriedades plain (Server→Client boundary)

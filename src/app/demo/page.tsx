@@ -1,11 +1,11 @@
 import { KPICard } from "./components/KPICard";
 import { RevenueChart } from "./components/RevenueChart";
 import { AppointmentsTable } from "./components/AppointmentsTable";
-import { getDemoClinicId } from "@/lib/auth/session";
+import { requireMembership } from "@/lib/auth/session";
 import { getKPIs, getTodayAppointments, getWeeklyRevenue } from "./lib/queries";
 
 export default async function DemoOverviewPage() {
-  const clinicId = await getDemoClinicId();
+  const { clinicId } = await requireMembership("/demo");
   const [kpis, revenue, todays] = await Promise.all([
     getKPIs(clinicId),
     getWeeklyRevenue(clinicId),

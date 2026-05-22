@@ -1,4 +1,4 @@
-import { getDemoClinicId } from "@/lib/auth/session";
+import { requireMembership } from "@/lib/auth/session";
 import { getJuliaConversations } from "../lib/queries";
 import { JuliaClient, type ConversationView } from "./JuliaClient";
 
@@ -9,7 +9,7 @@ const timeFmt = new Intl.DateTimeFormat("pt-BR", {
 });
 
 export default async function JuliaPage() {
-  const clinicId = await getDemoClinicId();
+  const { clinicId } = await requireMembership("/demo/julia");
   const rows = await getJuliaConversations(clinicId);
 
   const conversations: ConversationView[] = rows.map((c) => ({

@@ -1,5 +1,5 @@
 import { AppointmentStatus } from "@/generated/prisma/client";
-import { getDemoClinicId } from "@/lib/auth/session";
+import { requireMembership } from "@/lib/auth/session";
 import { getWeekAgenda } from "../lib/queries";
 
 const statusStyles: Record<AppointmentStatus, string> = {
@@ -21,7 +21,7 @@ const statusLabels: Record<AppointmentStatus, string> = {
 const legendOrder: AppointmentStatus[] = ["CONFIRMADO", "ATENDIDO", "PENDENTE", "CANCELADO"];
 
 export default async function AgendaPage() {
-  const clinicId = await getDemoClinicId();
+  const { clinicId } = await requireMembership("/demo/agenda");
   const { weekDays, todayIndex, slots } = await getWeekAgenda(clinicId);
 
   return (
