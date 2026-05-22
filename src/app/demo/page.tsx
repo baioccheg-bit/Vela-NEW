@@ -1,9 +1,17 @@
 import { KPICard } from "./components/KPICard";
 import { RevenueChart } from "./components/RevenueChart";
 import { AppointmentsTable } from "./components/AppointmentsTable";
-import { kpis } from "./lib/mock-data";
+import { getDemoClinicId } from "@/lib/auth/session";
+import { getKPIs, getTodayAppointments, getWeeklyRevenue } from "./lib/queries";
 
-export default function DemoOverviewPage() {
+export default async function DemoOverviewPage() {
+  const clinicId = await getDemoClinicId();
+  const [kpis, revenue, todays] = await Promise.all([
+    getKPIs(clinicId),
+    getWeeklyRevenue(clinicId),
+    getTodayAppointments(clinicId),
+  ]);
+
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -14,17 +22,19 @@ export default function DemoOverviewPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2">
-          <RevenueChart />
+          <RevenueChart data={revenue} />
         </div>
         <AgentsPanel />
       </div>
 
-      <AppointmentsTable />
+      <AppointmentsTable appointments={todays} />
     </div>
   );
 }
 
 function AgentsPanel() {
+  // Agentes ainda são institucionais (mesma equipe Vela em todo cliente).
+  // Vira tabela em Fase posterior quando der pra ligar/desligar agente por clínica.
   const agents = [
     { name: "Júlia", role: "WhatsApp", actions: 84, status: "online" as const },
     { name: "Atlas", role: "Financeiro", actions: 31, status: "online" as const },

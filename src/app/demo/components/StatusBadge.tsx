@@ -1,21 +1,27 @@
-import type { AppointmentStatus } from "../lib/mock-data";
+import type { AppointmentStatus } from "@/generated/prisma/client";
 
 const map: Record<AppointmentStatus, { label: string; classes: string }> = {
-  confirmado: {
+  CONFIRMADO: {
     label: "Confirmado",
-    classes: "bg-[color-mix(in_oklch,var(--color-success)_14%,transparent)] text-[color:var(--color-success)]",
+    classes:
+      "bg-[color-mix(in_oklch,var(--color-success)_14%,transparent)] text-[color:var(--color-success)]",
   },
-  pendente: {
+  PENDENTE: {
     label: "Pendente",
     classes: "border border-paper-3 text-ink-2 bg-paper-0",
   },
-  atendido: {
+  ATENDIDO: {
     label: "Atendido",
     classes: "bg-accent-tint text-accent",
   },
-  cancelado: {
+  CANCELADO: {
     label: "Cancelado",
     classes: "bg-paper-2 text-ink-3 line-through",
+  },
+  AUSENTE: {
+    label: "Ausente",
+    classes:
+      "bg-[color-mix(in_oklch,var(--color-warning)_14%,transparent)] text-[color:var(--color-warning)]",
   },
 };
 

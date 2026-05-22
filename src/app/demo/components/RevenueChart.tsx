@@ -1,10 +1,11 @@
-import { revenueLast7Days, formatBRL } from "../lib/mock-data";
+import { formatBRL } from "../lib/mock-data";
+import type { RevenuePoint } from "../lib/queries";
 
-export function RevenueChart() {
-  const max = Math.max(...revenueLast7Days.map((d) => d.value));
-  const total = revenueLast7Days.reduce((sum, d) => sum + d.value, 0);
-  const avg = total / revenueLast7Days.length;
-  const peakIndex = revenueLast7Days.findIndex((d) => d.value === max);
+export function RevenueChart({ data }: { data: RevenuePoint[] }) {
+  const max = Math.max(...data.map((d) => d.valueBRL), 1);
+  const total = data.reduce((sum, d) => sum + d.valueBRL, 0);
+  const avg = total / Math.max(data.length, 1);
+  const peakIndex = data.findIndex((d) => d.valueBRL === max);
 
   return (
     <div className="p-6 rounded-xl bg-paper-0 border border-paper-3 h-full flex flex-col">
@@ -17,8 +18,7 @@ export function RevenueChart() {
             {formatBRL(total)}
           </div>
           <div className="mt-2 text-sm text-ink-1">
-            Média diária{" "}
-            <span className="italic-accent">{formatBRL(avg)}</span>
+            Média diária <span className="italic-accent">{formatBRL(avg)}</span>
           </div>
         </div>
         <div className="flex flex-col items-end gap-1.5 text-[11px] font-mono uppercase tracking-[0.1em] text-ink-2">
@@ -39,17 +39,17 @@ export function RevenueChart() {
           className="absolute left-0 right-0 border-t border-dashed border-ink-3 opacity-50"
           style={{ bottom: `${(avg / max) * 100}%` }}
         />
-        {revenueLast7Days.map((d, i) => {
-          const heightPct = (d.value / max) * 100;
-          const isPeak = i === peakIndex;
+        {data.map((d, i) => {
+          const heightPct = (d.valueBRL / max) * 100;
+          const isPeak = i === peakIndex && max > 0;
           return (
-            <div key={d.day} className="flex-1 flex flex-col items-center gap-2 group min-w-0">
+            <div key={`${d.day}-${i}`} className="flex-1 flex flex-col items-center gap-2 group min-w-0">
               <div
                 className={`text-[10px] font-mono tabular-nums whitespace-nowrap transition-colors ${
                   isPeak ? "text-accent font-medium" : "text-ink-3 group-hover:text-ink-1"
                 }`}
               >
-                {formatBRL(d.value)}
+                {formatBRL(d.valueBRL)}
               </div>
               <div className="w-full flex-1 flex items-end">
                 <div

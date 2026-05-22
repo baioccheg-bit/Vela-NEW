@@ -1,21 +1,28 @@
-import { weekAgenda, weekDays, type AppointmentStatus } from "../lib/mock-data";
+import { AppointmentStatus } from "@/generated/prisma/client";
+import { getDemoClinicId } from "@/lib/auth/session";
+import { getWeekAgenda } from "../lib/queries";
 
 const statusStyles: Record<AppointmentStatus, string> = {
-  confirmado: "bg-accent-tint border-accent text-ink-0",
-  pendente: "bg-paper-1 border-paper-3 text-ink-1",
-  atendido: "bg-paper-2 border-paper-3 text-ink-1",
-  cancelado: "bg-paper-1 border-paper-3 text-ink-3 line-through",
+  CONFIRMADO: "bg-accent-tint border-accent text-ink-0",
+  PENDENTE: "bg-paper-1 border-paper-3 text-ink-1",
+  ATENDIDO: "bg-paper-2 border-paper-3 text-ink-1",
+  CANCELADO: "bg-paper-1 border-paper-3 text-ink-3 line-through",
+  AUSENTE: "bg-paper-1 border-paper-3 text-ink-3",
 };
 
 const statusLabels: Record<AppointmentStatus, string> = {
-  confirmado: "Confirmado",
-  atendido: "Atendido",
-  pendente: "Pendente",
-  cancelado: "Cancelado",
+  CONFIRMADO: "Confirmado",
+  ATENDIDO: "Atendido",
+  PENDENTE: "Pendente",
+  CANCELADO: "Cancelado",
+  AUSENTE: "Ausente",
 };
 
-export default function AgendaPage() {
-  const today = 2;
+const legendOrder: AppointmentStatus[] = ["CONFIRMADO", "ATENDIDO", "PENDENTE", "CANCELADO"];
+
+export default async function AgendaPage() {
+  const clinicId = await getDemoClinicId();
+  const { weekDays, todayIndex, slots } = await getWeekAgenda(clinicId);
 
   return (
     <div className="space-y-5">
@@ -45,7 +52,7 @@ export default function AgendaPage() {
         </div>
 
         <div className="flex items-center gap-4 text-[10px] font-mono uppercase tracking-[0.1em] text-ink-2">
-          {(["confirmado", "atendido", "pendente", "cancelado"] as AppointmentStatus[]).map((s) => (
+          {legendOrder.map((s) => (
             <div key={s} className="flex items-center gap-2">
               <span className={`w-3 h-3 rounded-sm border ${statusStyles[s].split(" ").slice(0, 2).join(" ")}`} />
               <span>{statusLabels[s]}</span>
@@ -63,10 +70,10 @@ export default function AgendaPage() {
                 <div
                   key={d}
                   className={`relative px-3 py-3 text-center border-l border-paper-3 ${
-                    i === today ? "bg-accent-tint" : ""
+                    i === todayIndex ? "bg-accent-tint" : ""
                   }`}
                 >
-                  {i === today && (
+                  {i === todayIndex && (
                     <span
                       aria-hidden
                       className="absolute top-2 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-accent"
@@ -74,14 +81,14 @@ export default function AgendaPage() {
                   )}
                   <div
                     className={`text-[10px] uppercase tracking-[0.12em] font-mono ${
-                      i === today ? "text-accent" : "text-ink-3"
+                      i === todayIndex ? "text-accent" : "text-ink-3"
                     }`}
                   >
                     {d.split(" ")[0]}
                   </div>
                   <div
                     className={`mt-1 font-display text-xl font-semibold tracking-[-0.02em] ${
-                      i === today ? "text-accent" : "text-ink-0"
+                      i === todayIndex ? "text-accent" : "text-ink-0"
                     }`}
                   >
                     {d.split(" ")[1]}
@@ -90,7 +97,7 @@ export default function AgendaPage() {
               ))}
             </div>
 
-            {weekAgenda.map((slot) => (
+            {slots.map((slot) => (
               <div
                 key={slot.time}
                 className="grid grid-cols-[72px_repeat(7,minmax(0,1fr))] border-b border-paper-3 last:border-b-0"
@@ -102,7 +109,7 @@ export default function AgendaPage() {
                   <div
                     key={i}
                     className={`px-2 py-2 border-l border-paper-3 min-h-[64px] ${
-                      i === today ? "bg-[color-mix(in_oklch,var(--color-accent)_3%,transparent)]" : ""
+                      i === todayIndex ? "bg-[color-mix(in_oklch,var(--color-accent)_3%,transparent)]" : ""
                     }`}
                   >
                     {cell && (

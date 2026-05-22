@@ -1,7 +1,14 @@
-import { todaysAppointments, formatBRL } from "../lib/mock-data";
+import { formatBRL } from "../lib/mock-data";
+import type { AppointmentWithRels } from "../lib/queries";
 import { StatusBadge } from "./StatusBadge";
 
-export function AppointmentsTable() {
+const timeFmt = new Intl.DateTimeFormat("pt-BR", {
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
+
+export function AppointmentsTable({ appointments }: { appointments: AppointmentWithRels[] }) {
   return (
     <div className="rounded-xl bg-paper-0 border border-paper-3 overflow-hidden">
       <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-paper-3">
@@ -14,7 +21,7 @@ export function AppointmentsTable() {
           </div>
         </div>
         <span className="text-[10px] uppercase tracking-[0.12em] font-mono text-ink-2">
-          {todaysAppointments.length} atendimentos
+          {appointments.length} atendimentos
         </span>
       </div>
 
@@ -31,8 +38,16 @@ export function AppointmentsTable() {
             </tr>
           </thead>
           <tbody>
-            {todaysAppointments.map((ap, i) => {
+            {appointments.length === 0 && (
+              <tr>
+                <td colSpan={6} className="px-6 py-12 text-center text-ink-3 text-sm">
+                  Nenhum atendimento hoje.
+                </td>
+              </tr>
+            )}
+            {appointments.map((ap, i) => {
               const isNow = i === 0;
+              const value = Number(ap.priceBRL ?? ap.procedure.priceBRL ?? 0);
               return (
                 <tr
                   key={ap.id}
@@ -40,8 +55,12 @@ export function AppointmentsTable() {
                     isNow ? "bg-accent-tint" : ""
                   }`}
                 >
-                  <td className={`px-6 py-3.5 font-mono tabular-nums ${isNow ? "text-accent font-semibold" : "text-ink-1"}`}>
-                    {ap.time}
+                  <td
+                    className={`px-6 py-3.5 font-mono tabular-nums ${
+                      isNow ? "text-accent font-semibold" : "text-ink-1"
+                    }`}
+                  >
+                    {timeFmt.format(ap.startsAt)}
                   </td>
                   <td className="px-6 py-3.5">
                     <div className="flex items-center gap-3">
@@ -50,18 +69,20 @@ export function AppointmentsTable() {
                           isNow ? "bg-accent text-paper-0" : "bg-paper-2 text-ink-1"
                         }`}
                       >
-                        {ap.patient.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                        {ap.patient.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
                       </div>
-                      <span className="text-ink-0 font-medium">{ap.patient}</span>
+                      <span className="text-ink-0 font-medium">{ap.patient.name}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-3.5 text-ink-1">{ap.procedure}</td>
-                  <td className="px-6 py-3.5 text-ink-2 hidden lg:table-cell">{ap.professional}</td>
+                  <td className="px-6 py-3.5 text-ink-1">{ap.procedure.name}</td>
+                  <td className="px-6 py-3.5 text-ink-2 hidden lg:table-cell">
+                    {ap.professional?.name ?? <span className="text-ink-3">—</span>}
+                  </td>
                   <td className="px-6 py-3.5">
                     <StatusBadge status={ap.status} />
                   </td>
                   <td className="px-6 py-3.5 text-right font-mono tabular-nums text-ink-0">
-                    {ap.value > 0 ? formatBRL(ap.value) : <span className="text-ink-3">—</span>}
+                    {value > 0 ? formatBRL(value) : <span className="text-ink-3">—</span>}
                   </td>
                 </tr>
               );
