@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 
 const titles: Record<string, { title: string; subtitle: string }> = {
@@ -12,9 +13,34 @@ const titles: Record<string, { title: string; subtitle: string }> = {
   "/painel/configuracoes/horarios": { title: "Horário de funcionamento", subtitle: "Define quando a Júlia pode agendar" },
 };
 
+const PROFESSIONALS_BASE = "/painel/configuracoes/profissionais";
+const PROCEDURES_BASE = "/painel/configuracoes/procedimentos";
+
 export function Topbar() {
   const pathname = usePathname();
-  const meta = titles[pathname] ?? titles["/painel"];
+
+  const meta = useMemo(() => {
+    if (titles[pathname]) return titles[pathname];
+    if (
+      pathname.startsWith(`${PROFESSIONALS_BASE}/`) &&
+      pathname !== PROFESSIONALS_BASE
+    ) {
+      return {
+        title: "Editar profissional",
+        subtitle: "Equipe que atende na clínica",
+      };
+    }
+    if (
+      pathname.startsWith(`${PROCEDURES_BASE}/`) &&
+      pathname !== PROCEDURES_BASE
+    ) {
+      return {
+        title: "Editar procedimento",
+        subtitle: "Tabela de preços e duração",
+      };
+    }
+    return titles["/painel"];
+  }, [pathname]);
 
   return (
     <header className="sticky top-0 z-20 bg-paper-0 border-b border-paper-3">

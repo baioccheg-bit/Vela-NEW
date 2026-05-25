@@ -198,8 +198,9 @@ model Professional {
   clinicId String
   name     String
   role     String // ex: "Dermatologista", "Esteticista"
-  /// hex sem #, ex "C9A96E" — usado no card da agenda
-  color    String  @default("C9A96E")
+  /// hex sem #, ex "2A6062" — usado no card da agenda.
+  /// Valores permitidos vivem em src/app/painel/configuracoes/profissionais/lib/schema.ts (PROFESSIONAL_PALETTE).
+  color    String  @default("2A6062")
   active   Boolean @default(true)
 
   clinic       Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
@@ -252,11 +253,6 @@ model Patient {
   tag       PatientTag @default(NOVO)
   notes     String?    @db.Text
 
-  /// denormalizado pra performance no /pacientes; recalculado no seed
-  lastVisitAt     DateTime?
-  proceduresCount Int       @default(0)
-  totalSpentBRL   Decimal   @default(0) @db.Decimal(12, 2)
-
   clinic        Clinic         @relation(fields: [clinicId], references: [id], onDelete: Cascade)
   appointments  Appointment[]
   conversations Conversation[]
@@ -266,6 +262,7 @@ model Patient {
 
   @@index([clinicId])
   @@index([clinicId, tag])
+  @@index([clinicId, phone])
 }
 
 // ── Agendamentos (escopo MVP) ────────────────────────────────────

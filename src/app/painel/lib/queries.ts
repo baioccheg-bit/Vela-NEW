@@ -1,5 +1,5 @@
 import "server-only";
-import { Prisma, AppointmentStatus } from "@/generated/prisma/client";
+import { Prisma, AppointmentStatus, PatientTag } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 
 // ── Tipos derivados do Prisma (single source of truth) ──────────
@@ -12,18 +12,16 @@ export type AppointmentWithRels = Prisma.AppointmentGetPayload<{
   };
 }>;
 
-export type PatientRow = Prisma.PatientGetPayload<{
-  select: {
-    id: true;
-    name: true;
-    phone: true;
-    birthDate: true;
-    tag: true;
-    lastVisitAt: true;
-    proceduresCount: true;
-    totalSpentBRL: true;
-  };
-}>;
+export type PatientRow = {
+  id: string;
+  name: string;
+  phone: string | null;
+  birthDate: Date | null;
+  tag: PatientTag;
+  lastVisitAt: Date | null;
+  proceduresCount: number;
+  totalSpentBRL: number;
+};
 
 export type ConversationWithLast = Prisma.ConversationGetPayload<{
   include: {
@@ -256,19 +254,73 @@ export async function getWeekAgenda(clinicId: string): Promise<WeekAgenda> {
 // ── Pacientes ──────────────────────────────────────────────────
 
 export async function getPatients(clinicId: string): Promise<PatientRow[]> {
-  return prisma.patient.findMany({
-    where: { clinicId },
-    select: {
-      id: true,
-      name: true,
-      phone: true,
-      birthDate: true,
-      tag: true,
-      lastVisitAt: true,
-      proceduresCount: true,
-      totalSpentBRL: true,
-    },
-    orderBy: [{ tag: "asc" }, { name: "asc" }],
+  const [patients, stats] = await Promise.all([
+    prisma.patient.findMany({
+      where: { clinicId },
+      select: {
+        id: true,
+        name: true,
+        phone: true,
+        birthDate: true,
+        tag: true,
+      },
+      orderBy: [{ tag: "asc" }, { name: "asc" }],
+    }),
+    prisma.appointment.groupBy({
+      by: ["patientId"],
+      where: { clinicId, status: AppointmentStatus.ATENDIDO },
+      _count: { _all: true },
+      _sum: { priceBRL: true },
+      _max: { startsAt: true },
+    }),
+  ]);
+
+  const byPatient = new Map(stats.map((s) => [s.patientId, s] as const));
+
+  return patients.map((p) => {
+    const s = byPatient.get(p.id);
+    return {
+      ...p,
+      lastVisitAt: s?._max.startsAt ?? null,
+      proceduresCount: s?._count._all ?? 0,
+      totalSpentBRL: Number(s?._sum.priceBRL ?? 0),
+    };
+  });
+}
+
+// ── Profissionais ──────────────────────────────────────────────
+
+export async function getProfessionals(
+  clinicId: string,
+  opts?: { activeOnly?: boolean },
+) {
+  return prisma.professional.findMany({
+    where: { clinicId, ...(opts?.activeOnly ? { active: true } : {}) },
+    orderBy: [{ active: "desc" }, { name: "asc" }],
+  });
+}
+
+export async function getProfessionalById(clinicId: string, id: string) {
+  return prisma.professional.findFirst({
+    where: { id, clinicId },
+  });
+}
+
+// ── Procedimentos ──────────────────────────────────────────────
+
+export async function getProcedures(
+  clinicId: string,
+  opts?: { activeOnly?: boolean },
+) {
+  return prisma.procedure.findMany({
+    where: { clinicId, ...(opts?.activeOnly ? { active: true } : {}) },
+    orderBy: [{ active: "desc" }, { name: "asc" }],
+  });
+}
+
+export async function getProcedureById(clinicId: string, id: string) {
+  return prisma.procedure.findFirst({
+    where: { id, clinicId },
   });
 }
 

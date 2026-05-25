@@ -62,11 +62,11 @@ async function main() {
   // ── Profissionais ──────────────────────────────────────────────
   const professionals = await Promise.all(
     [
-      { name: "Dra. Helena Vasconcelos", role: "Dermatologista", color: "C9A96E" },
-      { name: "Dr. Bruno Tavares", role: "Cirurgião plástico", color: "8B6B3E" },
-      { name: "Marina Silveira", role: "Esteticista", color: "1A4A4A" },
-      { name: "Dra. Camila Souza", role: "Dermatologista", color: "B8943C" },
-      { name: "Rafael Mendes", role: "Fisioterapeuta dermatofuncional", color: "4A5568" },
+      { name: "Dra. Helena Vasconcelos", role: "Dermatologista", color: "2A6062" },
+      { name: "Dr. Bruno Tavares", role: "Cirurgião plástico", color: "1A3F40" },
+      { name: "Marina Silveira", role: "Esteticista", color: "5A969A" },
+      { name: "Dra. Camila Souza", role: "Dermatologista", color: "1F2733" },
+      { name: "Rafael Mendes", role: "Fisioterapeuta dermatofuncional", color: "50596A" },
     ].map((p) => prisma.professional.create({ data: { ...p, clinicId: clinic.id } }))
   );
   console.log(`✓ ${professionals.length} profissionais`);
@@ -214,25 +214,6 @@ async function main() {
     })
   );
   console.log(`✓ ${appointments.length} agendamentos`);
-
-  // ── Denormalizar contadores em Patient ────────────────────────
-  for (const patient of patients) {
-    const attended = await prisma.appointment.findMany({
-      where: { patientId: patient.id, status: AppointmentStatus.ATENDIDO },
-      select: { startsAt: true, priceBRL: true },
-      orderBy: { startsAt: "desc" },
-    });
-    const total = attended.reduce((sum, a) => sum + Number(a.priceBRL ?? 0), 0);
-    await prisma.patient.update({
-      where: { id: patient.id },
-      data: {
-        proceduresCount: attended.length,
-        totalSpentBRL: total,
-        lastVisitAt: attended[0]?.startsAt ?? null,
-      },
-    });
-  }
-  console.log("✓ Denormalizado proceduresCount / lastVisitAt / totalSpentBRL");
 
   // ── Conversas da Júlia ────────────────────────────────────────
   const convSeeds = [
