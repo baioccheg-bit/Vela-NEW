@@ -533,6 +533,17 @@ Ordem provável (não locked):
 
 ---
 
+## Dívida técnica registrada
+
+Itens conhecidos e aceitos no MVP. Fase de pickup indicativa.
+
+- **Grade da agenda × minutos não-cheios** (introduzido na Fase 2.4): a grade de `/painel/agenda` é uma matriz dia × hora-cheia (8h-20h). Agendamentos cuja `startsAt` cai em minuto não-cheio (ex: 14:30) são exibidos na linha da hora truncada (14:00) e podem colidir visualmente com outro do mesmo slot. O CRUD e o conflict check operam corretamente no banco (fonte da verdade). O drawer de detalhes exibe aviso ("Minuto não-cheio — pode não aparecer na grade") quando aplicável. Conserto previsto: substituir a grade por visualização de slots de 15min ou agrupamento por profissional. Pickup: fase de polimento pós-2.6.
+- **Motivo de cancelamento concatenado em `notes`** (introduzido na Fase 2.4): a action `cancelAppointment` aceita motivo opcional e o anexa como `[cancelado: …]` ao fim de `Appointment.notes`. Não há coluna dedicada `cancelReason` — evitada uma 2ª migração na Fase 2.4. **RESOLVER ANTES DA FASE 5 — Sofia/Atlas dependem de motivo estruturado pra políticas (ex: "não cobrar quando reason=clínica") e relatórios.** Conserto: adicionar enum `CancelReason` (ex: `PACIENTE_DESISTIU`, `REAGENDADO`, `CLINICA_FECHOU`, `NO_SHOW_CONVERTIDO`, `OUTRO`) + coluna `cancelReason CancelReason?` no `Appointment` + opcional `cancelNote String?` pra texto livre. Migração escrita junto com a Fase 5 (ou em sub-fase 2.7 dedicada se a janela ficar grande).
+- **Sem horário de verão no `parseDateTimeBR`**: o helper usa offset fixo `-03:00` (America/Sao_Paulo sem DST desde 2019). Se o Brasil reintroduzir horário de verão, parses entre out-fev passam a errar 1h. Conserto: migrar pra `Intl.DateTimeFormat` + `toZonedTime` ou similar. Pickup: só se DST voltar.
+- **Defesa cross-clinic só no action layer** (introduzido na Fase 2.4): o schema Prisma não impõe FK compostas `(clinicId, professionalId)`, `(clinicId, procedureId)`, `(clinicId, patientId)`. As 7 actions de Agendamento blindam via `findFirst({ id, clinicId })` antes de qualquer create/update, então na prática está protegido. Risco: uma futura action que esqueça essa validação pode criar Appointment "Frankenstein" cruzando IDs de clínicas diferentes. **RESOLVER ANTES DA FASE 5 — Sofia vai criar Charge com appointmentId + patientId; sem defesa no banco, charges cruzadas viram possíveis se uma única action vazar.** Conserto: índices únicos compostos no Postgres OU triggers de validação. Avaliar trade-off com tempo de migração na entrada da Fase 5.
+
+---
+
 ## Snapshot de progresso
 
 Ao terminar cada fase, atualize aqui:
