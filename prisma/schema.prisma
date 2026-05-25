@@ -288,6 +288,11 @@ model Appointment {
   /// preço cobrado nesse atendimento (pode divergir da tabela do Procedure)
   priceBRL       Decimal?          @db.Decimal(10, 2)
   notes          String?           @db.Text
+  /// horário do primeiro agendamento, antes de qualquer reagendamento.
+  /// null = nunca foi reagendado. Set apenas no PRIMEIRO reschedule.
+  originalStartsAt DateTime?
+  /// timestamp do último reschedule. null = nunca reagendado.
+  rescheduledAt    DateTime?
 
   clinic       Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
   patient      Patient       @relation(fields: [patientId], references: [id], onDelete: Cascade)

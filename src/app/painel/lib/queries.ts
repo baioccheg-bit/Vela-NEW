@@ -179,24 +179,33 @@ export async function getTodayAppointments(clinicId: string): Promise<Appointmen
 
 // ── Agenda da semana (7 dias × 13 slots de hora cheia 8-20) ───
 
+export type WeekCell = {
+  id: string;
+  patient: string;
+  procedure: string;
+  professionalName: string | null;
+  professionalColor: string | null;
+  status: AppointmentStatus;
+  startsAtISO: string;
+};
+
 export type WeekSlot = {
   time: string;
-  days: Array<{
-    patient: string;
-    procedure: string;
-    status: AppointmentStatus;
-  } | null>;
+  days: Array<WeekCell | null>;
 };
 
 export type WeekAgenda = {
   weekDays: string[]; // ex: "Seg 13"
+  /** ISO YYYY-MM-DD por coluna, na ordem da semana. Usado pelo click handler
+   *  de slot vazio pra pré-preencher data + hora ao abrir o form. */
+  weekDates: string[];
   todayIndex: number;
   slots: WeekSlot[];
 };
 
 export async function getWeekAgenda(clinicId: string): Promise<WeekAgenda> {
   const now = new Date();
-  // Começa na segunda (1) ou domingo (0)? Usamos segunda pra alinhar com cl iniclínica BR.
+  // Começa na segunda (1) ou domingo (0)? Usamos segunda pra alinhar com clínica BR.
   const todayDow = now.getDay(); // 0=dom..6=sáb
   const offsetFromMonday = todayDow === 0 ? 6 : todayDow - 1;
   const monday = new Date(now);
@@ -212,20 +221,25 @@ export async function getWeekAgenda(clinicId: string): Promise<WeekAgenda> {
       status: { not: AppointmentStatus.CANCELADO },
     },
     select: {
+      id: true,
       startsAt: true,
       status: true,
       patient: { select: { name: true } },
       procedure: { select: { name: true } },
+      professional: { select: { name: true, color: true } },
     },
     orderBy: { startsAt: "asc" },
   });
 
   const dayLabels = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
-  const weekDays = dayLabels.map((label, i) => {
+  const weekDays: string[] = [];
+  const weekDates: string[] = [];
+  for (let i = 0; i < 7; i++) {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
-    return `${label} ${d.getDate()}`;
-  });
+    weekDays.push(`${dayLabels[i]} ${d.getDate()}`);
+    weekDates.push(dayKey(d));
+  }
 
   const slots: WeekSlot[] = [];
   for (let hour = 8; hour <= 20; hour++) {
@@ -239,16 +253,25 @@ export async function getWeekAgenda(clinicId: string): Promise<WeekAgenda> {
     const d = row.startsAt;
     const dow = d.getDay();
     const colIdx = dow === 0 ? 6 : dow - 1;
+    // DÍVIDA TÉCNICA: a grade só mostra hora cheia. Agendamentos em minutos
+    // não-cheios (ex 14:30) caem no slot da hora truncada e podem se sobrepor
+    // visualmente com outros do mesmo slot. CRUD/conflito continuam corretos
+    // (banco é fonte da verdade). Conserto previsto em fase futura — registrado
+    // em docs/BUILD_PLAN.md §"Dívida técnica registrada".
     const slotIdx = d.getHours() - 8;
     if (slotIdx < 0 || slotIdx >= slots.length) continue;
     slots[slotIdx].days[colIdx] = {
+      id: row.id,
       patient: row.patient.name,
       procedure: row.procedure.name,
+      professionalName: row.professional?.name ?? null,
+      professionalColor: row.professional?.color ?? null,
       status: row.status,
+      startsAtISO: d.toISOString(),
     };
   }
 
-  return { weekDays, todayIndex: offsetFromMonday, slots };
+  return { weekDays, weekDates, todayIndex: offsetFromMonday, slots };
 }
 
 // ── Pacientes ──────────────────────────────────────────────────
@@ -350,6 +373,57 @@ export async function getPatientAppointments(
       professional: { select: { id: true, name: true } },
     },
     orderBy: { startsAt: "desc" },
+  });
+}
+
+// ── Agendamento (detalhe) ──────────────────────────────────────
+
+export type AppointmentDetail = Prisma.AppointmentGetPayload<{
+  include: {
+    patient: { select: { id: true; name: true; phone: true } };
+    procedure: { select: { id: true; name: true; durationMin: true; priceBRL: true; active: true } };
+    professional: { select: { id: true; name: true; color: true; active: true } };
+  };
+}>;
+
+const appointmentDetailInclude = {
+  patient: { select: { id: true, name: true, phone: true } },
+  procedure: {
+    select: { id: true, name: true, durationMin: true, priceBRL: true, active: true },
+  },
+  professional: {
+    select: { id: true, name: true, color: true, active: true },
+  },
+} satisfies Prisma.AppointmentInclude;
+
+export async function getAppointmentById(
+  clinicId: string,
+  id: string,
+): Promise<AppointmentDetail | null> {
+  return prisma.appointment.findFirst({
+    where: { id, clinicId },
+    include: appointmentDetailInclude,
+  });
+}
+
+/** Versão "detalhada" da semana — o page.tsx usa pra alimentar o Drawer
+ *  de detalhes sem precisar de uma chamada adicional ao clicar. */
+export async function getWeekAppointmentsDetailed(
+  clinicId: string,
+): Promise<AppointmentDetail[]> {
+  const now = new Date();
+  const todayDow = now.getDay();
+  const offsetFromMonday = todayDow === 0 ? 6 : todayDow - 1;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - offsetFromMonday);
+  monday.setHours(0, 0, 0, 0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 7);
+
+  return prisma.appointment.findMany({
+    where: { clinicId, startsAt: { gte: monday, lt: sunday } },
+    include: appointmentDetailInclude,
+    orderBy: { startsAt: "asc" },
   });
 }
 
