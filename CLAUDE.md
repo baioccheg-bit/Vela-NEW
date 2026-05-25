@@ -257,3 +257,4 @@ Se precisar de uma variante de componente, **estenda via prop**, não duplique.
 - ✅ Toda string visível ao usuário em pt-BR.
 - ✅ Italic Instrument Serif: 1 palavra por título, na cor accent, nunca em texto corrido.
 - ✅ Reduce-motion tem que continuar funcionando.
+- ✅ Antes de fechar uma fase: rodar `git status` e confirmar que a working tree contém apenas arquivos da fase atual. Mudanças pendentes de fases anteriores devem ser commitadas separadamente com chore/fix apontando a fase de origem real, nunca empacotadas na fase corrente.
