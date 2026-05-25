@@ -78,6 +78,9 @@ model User {
   /// bcrypt hash; null se usuário só usa magic link ou OAuth
   passwordHash  String?
   role          UserRole  @default(CUSTOMER)
+  /// timestamp em que o usuário fechou o modal de boas-vindas (tour ou pular).
+  /// null = nunca viu, modal aparece no próximo acesso ao /painel.
+  welcomedAt    DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -94,6 +97,10 @@ model Clinic {
   name      String
   slug      String   @unique
   cnpj      String?
+  /// timestamp em que a clínica fechou o checklist de onboarding.
+  /// null = checklist visível (se houver pendências). Não-null = oculto explicitamente.
+  /// O checklist também some sozinho quando todos os itens ATIVOS estão concluídos.
+  onboardingDismissedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

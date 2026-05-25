@@ -17,6 +17,7 @@ import {
   MembershipRole,
   UserRole,
 } from "../src/generated/prisma/client";
+import { seedClinicDefaults, createInitialProfessionalForAdmin } from "../src/lib/clinics/seed-defaults";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
@@ -33,22 +34,32 @@ async function main() {
   // Apaga clínica antiga (cascade derruba patients/appointments/etc)
   await prisma.clinic.deleteMany({ where: { slug: CLINIC_SLUG } });
 
+  // onboardingDismissedAt setado pra que o demo user não veja o checklist
+  // ao logar (demo é showcase do dashboard, não do onboarding).
   const clinic = await prisma.clinic.create({
-    data: { name: CLINIC_NAME, slug: CLINIC_SLUG },
+    data: { name: CLINIC_NAME, slug: CLINIC_SLUG, onboardingDismissedAt: new Date() },
   });
   console.log(`✓ Clínica criada: ${clinic.id}`);
 
+  // Injeta defaults canônicos da Fase 2.5 ANTES dos professionals/procedures
+  // específicos do demo. Helper detecta count=0 nesse ponto e injeta. Depois,
+  // o seed adiciona os específicos por cima. Resultado: 3 procedures genéricos
+  // + 10 específicos = 13. Idem 1 admin + 5 específicos = 6 professionals.
+  await seedClinicDefaults(clinic.id);
+
   // ── Usuário demo + membership (login p/ /demo) ────────────────
+  // welcomedAt setado pra que o demo user não veja o modal de boas-vindas.
   const passwordHash = await bcrypt.hash(DEMO_USER_PASSWORD, 12);
   const demoUser = await prisma.user.upsert({
     where: { email: DEMO_USER_EMAIL },
-    update: { passwordHash, emailVerified: new Date(), name: DEMO_USER_NAME },
+    update: { passwordHash, emailVerified: new Date(), name: DEMO_USER_NAME, welcomedAt: new Date() },
     create: {
       email: DEMO_USER_EMAIL,
       name: DEMO_USER_NAME,
       passwordHash,
       role: UserRole.CUSTOMER,
       emailVerified: new Date(),
+      welcomedAt: new Date(),
     },
   });
   // Membership não cascateou junto com a clínica (deletamos a clínica
@@ -57,6 +68,9 @@ async function main() {
   await prisma.membership.create({
     data: { userId: demoUser.id, clinicId: clinic.id, role: MembershipRole.ADMIN },
   });
+
+  await createInitialProfessionalForAdmin(demoUser.id, clinic.id, DEMO_USER_NAME);
+
   console.log(`✓ Usuário demo: ${DEMO_USER_EMAIL} / ${DEMO_USER_PASSWORD}`);
 
   // ── Profissionais ──────────────────────────────────────────────

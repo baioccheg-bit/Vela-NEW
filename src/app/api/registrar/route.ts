@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
+import { createInitialProfessionalForAdmin } from "@/lib/clinics/seed-defaults";
 import { UserRole } from "@/generated/prisma/client";
 
 type Payload = {
@@ -74,6 +75,11 @@ export async function POST(req: NextRequest) {
       role: invite.role,
     },
   });
+
+  // Cria o Professional inicial da clínica usando o nome do user (Fase 2.5).
+  // Idempotente: se já houver Professional ativo, pula. SEM catch silencioso —
+  // defaults são parte do contrato de "clínica funcional pós-registro".
+  await createInitialProfessionalForAdmin(user.id, invite.clinicId, user.name ?? body.nome.trim());
 
   await prisma.invite.update({
     where: { id: invite.id },
