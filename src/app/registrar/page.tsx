@@ -13,6 +13,9 @@ export const metadata = {
 type SearchParams = Promise<{ token?: string }>;
 
 export default async function RegistrarPage({ searchParams }: { searchParams: SearchParams }) {
+  // Server Component async: Date.now é seguro aqui (executa por request no server, não em render do client)
+  // eslint-disable-next-line react-hooks/purity
+  const now = Date.now();
   const { token } = await searchParams;
 
   if (!token) {
@@ -54,7 +57,7 @@ export default async function RegistrarPage({ searchParams }: { searchParams: Se
     );
   }
 
-  if (invite.expiresAt.getTime() < Date.now()) {
+  if (invite.expiresAt.getTime() < now) {
     return (
       <Shell>
         <InviteError

@@ -63,8 +63,8 @@ export default function CarreirasPage() {
               <h2>Quer ser avisado?</h2>
               <p>
                 Mande um e-mail com seu currículo e uma linha sobre por que a
-                Vela te interessa. Não respondemos com "agradecemos seu
-                interesse" automático — se você escrever, alguém lê.
+                Vela te interessa. Não respondemos com &quot;agradecemos seu
+                interesse&quot; automático — se você escrever, alguém lê.
               </p>
               <p>
                 <strong>E-mail:</strong>{" "}
@@ -79,8 +79,8 @@ export default function CarreirasPage() {
                   16h da terça-feira, não só implementar o ticket
                 </li>
                 <li>
-                  <strong>Honestidade técnica</strong> — sabe dizer "não sei",
-                  "tá errado", "isso vai dar dor de cabeça em 6 meses"
+                  <strong>Honestidade técnica</strong> — sabe dizer &quot;não sei&quot;,
+                  &quot;tá errado&quot;, &quot;isso vai dar dor de cabeça em 6 meses&quot;
                 </li>
                 <li>
                   <strong>Capacidade de explicar simples</strong> — pra cliente,

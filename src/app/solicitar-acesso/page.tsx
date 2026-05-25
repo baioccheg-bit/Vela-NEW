@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { useState } from "react";
 import { Navbar, Footer } from "@/components";
 
@@ -52,12 +53,12 @@ export default function SolicitarAcessoPage() {
             <p className="text-obsidian/60 max-w-md mx-auto mb-8">
               Nosso time de sucesso do cliente entrará em contato em até 24 horas úteis para agendar sua demonstração.
             </p>
-            <a
+            <Link
               href="/"
               className="inline-block px-8 py-3.5 bg-champagne text-obsidian font-medium rounded-full hover:bg-amber-gold transition-colors"
             >
               Voltar ao início
-            </a>
+            </Link>
           </motion.div>
         </main>
         <Footer />

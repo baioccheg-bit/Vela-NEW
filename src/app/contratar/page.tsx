@@ -3,6 +3,7 @@
 import { VelaNav } from "@/components/VelaNav";
 import { VelaFooter } from "@/components/VelaFooter";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Suspense, useState } from "react";
 import "../home.css";
 
@@ -233,7 +234,7 @@ function ContratarContent() {
                 a Vela vai aparecer pra sua equipe.
               </p>
               <div style={{ marginTop: "2.5rem" }}>
-                <a href="/" className="btn btn--ghost">Voltar pro site</a>
+                <Link href="/" className="btn btn--ghost">Voltar pro site</Link>
               </div>
             </div>
           )}
