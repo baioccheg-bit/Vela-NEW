@@ -246,8 +246,9 @@ model Patient {
   clinicId  String
   name      String
   email     String?
-  /// E.164 quando possível
-  phone     String?
+  /// E.164 obrigatório (validado por normalizePhoneBR em src/app/painel/pacientes/lib/schema.ts).
+  /// A Fase 4 (Júlia) faz lookup por phone no webhook do WhatsApp — não pode ser null.
+  phone     String
   cpf       String?
   birthDate DateTime?
   tag       PatientTag @default(NOVO)

@@ -15,7 +15,7 @@ export type AppointmentWithRels = Prisma.AppointmentGetPayload<{
 export type PatientRow = {
   id: string;
   name: string;
-  phone: string | null;
+  phone: string;
   birthDate: Date | null;
   tag: PatientTag;
   lastVisitAt: Date | null;
@@ -321,6 +321,35 @@ export async function getProcedures(
 export async function getProcedureById(clinicId: string, id: string) {
   return prisma.procedure.findFirst({
     where: { id, clinicId },
+  });
+}
+
+// ── Pacientes (detalhe) ────────────────────────────────────────
+
+export async function getPatientById(clinicId: string, id: string) {
+  return prisma.patient.findFirst({
+    where: { id, clinicId },
+  });
+}
+
+export type PatientAppointmentRow = Prisma.AppointmentGetPayload<{
+  include: {
+    procedure: { select: { id: true; name: true } };
+    professional: { select: { id: true; name: true } };
+  };
+}>;
+
+export async function getPatientAppointments(
+  clinicId: string,
+  patientId: string,
+): Promise<PatientAppointmentRow[]> {
+  return prisma.appointment.findMany({
+    where: { clinicId, patientId },
+    include: {
+      procedure: { select: { id: true, name: true } },
+      professional: { select: { id: true, name: true } },
+    },
+    orderBy: { startsAt: "desc" },
   });
 }
 

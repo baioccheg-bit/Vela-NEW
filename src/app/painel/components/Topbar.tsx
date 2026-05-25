@@ -15,6 +15,7 @@ const titles: Record<string, { title: string; subtitle: string }> = {
 
 const PROFESSIONALS_BASE = "/painel/configuracoes/profissionais";
 const PROCEDURES_BASE = "/painel/configuracoes/procedimentos";
+const PATIENTS_BASE = "/painel/pacientes";
 
 export function Topbar() {
   const pathname = usePathname();
@@ -37,6 +38,15 @@ export function Topbar() {
       return {
         title: "Editar procedimento",
         subtitle: "Tabela de preços e duração",
+      };
+    }
+    if (
+      pathname.startsWith(`${PATIENTS_BASE}/`) &&
+      pathname !== PATIENTS_BASE
+    ) {
+      return {
+        title: "Paciente",
+        subtitle: "Ficha e histórico",
       };
     }
     return titles["/painel"];

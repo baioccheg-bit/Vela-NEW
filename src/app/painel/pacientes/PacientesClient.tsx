@@ -1,13 +1,24 @@
 "use client";
 
+// "use client" — motivo: estado de busca, filtro de tag, Drawer pra criar paciente,
+// router.refresh após criar (revalidate vem da action mas o componente também
+// precisa re-renderizar com dados novos).
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import type { PatientTag } from "@/generated/prisma/client";
+
+import { Drawer } from "../components/Drawer";
 import { formatBRL, formatDate } from "../lib/mock-data";
+import { createPatient } from "./actions";
+import { PatientForm } from "./PatientForm";
+import { formatPhoneDisplay } from "./lib/format";
 
 export type PatientRowSerialized = {
   id: string;
   name: string;
-  phone: string | null;
+  phone: string; // E.164 (obrigatório a partir da Fase 2.3)
   birthDate: string | null; // ISO
   tag: PatientTag;
   lastVisitAt: string | null; // ISO
@@ -42,8 +53,10 @@ function ageFromBirthdate(iso: string | null): number | null {
 }
 
 export function PacientesClient({ patients }: { patients: PatientRowSerialized[] }) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<TagFilter>("TODOS");
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const filtered = useMemo(() => {
     return patients.filter((p) => {
@@ -89,9 +102,23 @@ export function PacientesClient({ patients }: { patients: PatientRowSerialized[]
             Pacientes <span className="italic-accent">ativos</span>.
           </h2>
         </div>
-        <div className="text-[11px] font-mono text-ink-3">
-          {patients.length} cadastrados · {vipCount} VIP
-        </div>
+        <button
+          type="button"
+          onClick={() => setDrawerOpen(true)}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-ink-0 text-paper-0 text-sm font-medium hover:bg-accent transition-colors"
+        >
+          <svg
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            className="w-3.5 h-3.5"
+            aria-hidden
+          >
+            <path d="M8 3v10M3 8h10" strokeLinecap="round" />
+          </svg>
+          Novo paciente
+        </button>
       </div>
 
       <div className="rounded-xl bg-paper-0 border border-paper-3 overflow-hidden">
@@ -152,10 +179,13 @@ export function PacientesClient({ patients }: { patients: PatientRowSerialized[]
                 return (
                   <tr
                     key={p.id}
-                    className="border-t border-paper-3 hover:bg-paper-1 transition-colors cursor-pointer"
+                    className="border-t border-paper-3 hover:bg-paper-1 transition-colors"
                   >
                     <td className="px-6 py-3.5">
-                      <div className="flex items-center gap-3">
+                      <Link
+                        href={`/painel/pacientes/${p.id}`}
+                        className="flex items-center gap-3"
+                      >
                         <div className="w-9 h-9 rounded-full bg-paper-2 text-ink-1 flex items-center justify-center text-xs font-display font-semibold">
                           {p.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
                         </div>
@@ -166,10 +196,10 @@ export function PacientesClient({ patients }: { patients: PatientRowSerialized[]
                             {p.id.slice(0, 8)}
                           </div>
                         </div>
-                      </div>
+                      </Link>
                     </td>
                     <td className="px-6 py-3.5 text-ink-2 font-mono text-xs hidden md:table-cell">
-                      {p.phone ?? <span className="text-ink-3">—</span>}
+                      {formatPhoneDisplay(p.phone)}
                     </td>
                     <td className="px-6 py-3.5 text-ink-2 hidden lg:table-cell">
                       {p.lastVisitAt ? formatDate(p.lastVisitAt.slice(0, 10)) : <span className="text-ink-3">—</span>}
@@ -202,6 +232,22 @@ export function PacientesClient({ patients }: { patients: PatientRowSerialized[]
           </table>
         </div>
       </div>
+
+      <Drawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        title="Novo paciente"
+      >
+        <PatientForm
+          action={createPatient}
+          submitLabel="Cadastrar"
+          onSuccess={() => {
+            setDrawerOpen(false);
+            router.refresh();
+          }}
+          onCancel={() => setDrawerOpen(false)}
+        />
+      </Drawer>
     </div>
   );
 }
