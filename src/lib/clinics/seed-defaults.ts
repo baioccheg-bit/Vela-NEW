@@ -76,3 +76,40 @@ export async function createInitialProfessionalForAdmin(
     },
   });
 }
+
+/**
+ * Defaults de horário de funcionamento injetados na criação de uma Clinic
+ * (Fase 2.6, BUILD_PLAN.md §"Defaults injetados").
+ *
+ * Defaults:
+ *   - Segunda a sexta: 08:00–18:00, aberto.
+ *   - Sábado: 08:00–12:00, aberto.
+ *   - Domingo: 08:00–12:00, FECHADO (active=false). Mantemos horário default
+ *     por consistência com a regex do Zod (opensAt < closesAt sempre).
+ *
+ * Idempotência: count === 0 → cria os 7; caso contrário não toca.
+ *
+ * Função SEPARADA de seedClinicDefaults intencionalmente: callers podem
+ * querer rodar horários isoladamente (ex: clínica antiga pré-2.6 sem
+ * horários cadastrados).
+ *
+ * NÃO seta Clinic.businessHoursCustomizedAt — esse campo só é setado quando
+ * o admin salva via UI. Defaults injetados = "ainda não personalizou", o que
+ * mantém o item "Personalizar horários" pendente no checklist de onboarding.
+ */
+export async function seedClinicBusinessHours(clinicId: string): Promise<void> {
+  const existing = await prisma.businessHours.count({ where: { clinicId } });
+  if (existing > 0) return;
+
+  await prisma.businessHours.createMany({
+    data: [
+      { clinicId, weekday: "SEGUNDA", opensAt: "08:00", closesAt: "18:00", active: true },
+      { clinicId, weekday: "TERCA",   opensAt: "08:00", closesAt: "18:00", active: true },
+      { clinicId, weekday: "QUARTA",  opensAt: "08:00", closesAt: "18:00", active: true },
+      { clinicId, weekday: "QUINTA",  opensAt: "08:00", closesAt: "18:00", active: true },
+      { clinicId, weekday: "SEXTA",   opensAt: "08:00", closesAt: "18:00", active: true },
+      { clinicId, weekday: "SABADO",  opensAt: "08:00", closesAt: "12:00", active: true },
+      { clinicId, weekday: "DOMINGO", opensAt: "08:00", closesAt: "12:00", active: false },
+    ],
+  });
+}

@@ -17,7 +17,11 @@ import {
   MembershipRole,
   UserRole,
 } from "../src/generated/prisma/client";
-import { seedClinicDefaults, createInitialProfessionalForAdmin } from "../src/lib/clinics/seed-defaults";
+import {
+  seedClinicDefaults,
+  seedClinicBusinessHours,
+  createInitialProfessionalForAdmin,
+} from "../src/lib/clinics/seed-defaults";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
@@ -41,11 +45,13 @@ async function main() {
   });
   console.log(`✓ Clínica criada: ${clinic.id}`);
 
-  // Injeta defaults canônicos da Fase 2.5 ANTES dos professionals/procedures
+  // Injeta defaults canônicos da Fase 2.5/2.6 ANTES dos professionals/procedures
   // específicos do demo. Helper detecta count=0 nesse ponto e injeta. Depois,
   // o seed adiciona os específicos por cima. Resultado: 3 procedures genéricos
   // + 10 específicos = 13. Idem 1 admin + 5 específicos = 6 professionals.
+  // BusinessHours: 7 entradas (uma por dia) — idempotência separada.
   await seedClinicDefaults(clinic.id);
+  await seedClinicBusinessHours(clinic.id);
 
   // ── Usuário demo + membership (login p/ /demo) ────────────────
   // welcomedAt setado pra que o demo user não veja o modal de boas-vindas.

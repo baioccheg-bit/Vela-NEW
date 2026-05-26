@@ -83,7 +83,6 @@ const sections: NavSection[] = [
       {
         href: "/painel/configuracoes/horarios",
         label: "Horários",
-        soon: true,
         icon: (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />

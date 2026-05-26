@@ -12,7 +12,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { inviteTemplate, sendEmail } from "@/lib/email";
 import { prisma } from "@/lib/prisma";
-import { seedClinicDefaults } from "@/lib/clinics/seed-defaults";
+import {
+  seedClinicDefaults,
+  seedClinicBusinessHours,
+} from "@/lib/clinics/seed-defaults";
 import { LeadStatus, MembershipRole } from "@/generated/prisma/client";
 
 function slugify(input: string): string {
@@ -65,10 +68,11 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     },
   });
 
-  // 1b. Injeta defaults (Procedures genéricos). Professional inicial será
-  // criado depois em /api/registrar, quando o user definir nome+senha.
-  // Ver Fase 2.5 do docs/BUILD_PLAN.md.
+  // 1b. Injeta defaults (Procedures genéricos + 7 BusinessHours). Professional
+  // inicial será criado depois em /api/registrar, quando o user definir
+  // nome+senha. Ver Fase 2.5/2.6 do docs/BUILD_PLAN.md.
   await seedClinicDefaults(clinic.id);
+  await seedClinicBusinessHours(clinic.id);
 
   // 2. Cria o Invite (token de 7 dias)
   const token = randomBytes(32).toString("base64url");

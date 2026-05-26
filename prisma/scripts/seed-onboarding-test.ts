@@ -18,6 +18,7 @@ import {
 } from "../../src/generated/prisma/client";
 import {
   seedClinicDefaults,
+  seedClinicBusinessHours,
   createInitialProfessionalForAdmin,
 } from "../../src/lib/clinics/seed-defaults";
 
@@ -38,6 +39,7 @@ async function main() {
   });
 
   await seedClinicDefaults(clinic.id);
+  await seedClinicBusinessHours(clinic.id);
 
   const passwordHash = await bcrypt.hash(TEST_USER_PASSWORD, 12);
   const user = await prisma.user.create({
@@ -66,6 +68,7 @@ async function main() {
   console.log("Conteúdo da clínica:");
   console.log("  - 3 procedimentos genéricos (Consulta, Retorno, Avaliação)");
   console.log(`  - 1 profissional Administradora (${TEST_USER_NAME})`);
+  console.log("  - 7 horários default (seg-sex 8-18, sáb 8-12, dom fechado)");
   console.log("  - 0 pacientes");
   console.log("  - 0 agendamentos");
   console.log("");

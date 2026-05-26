@@ -101,6 +101,10 @@ model Clinic {
   /// null = checklist visível (se houver pendências). Não-null = oculto explicitamente.
   /// O checklist também some sozinho quando todos os itens ATIVOS estão concluídos.
   onboardingDismissedAt DateTime?
+  /// timestamp da primeira vez que o admin salvou horários customizados (Fase 2.6).
+  /// null = ainda usando defaults do seed → checklist mostra "Personalizar horários" pendente.
+  /// Set pelo updateBusinessHours na primeira execução; nunca limpado pela UI.
+  businessHoursCustomizedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -113,6 +117,7 @@ model Clinic {
   conversations Conversation[]
   subscription  Subscription?
   auditLogs     AuditLog[]
+  businessHours BusinessHours[]
 }
 
 enum MembershipRole {
@@ -121,6 +126,21 @@ enum MembershipRole {
   RECEPTIONIST // recepção
   FINANCE // financeiro
   PROFESSIONAL // médico, esteticista, fisio
+}
+
+/// Dias da semana em ordem cronológica (Segunda → Domingo).
+/// Ordem importa: `ORDER BY weekday` em queries devolve a semana em ordem natural
+/// pra UI sem mapeamento manual. Não usar 0-6 numérico — enum nominal é mais
+/// legível em queries do Studio e nos logs do Júlia (Fase 4).
+/// BUILD_PLAN.md linha 251 diz "weekday (0-6)" — desvio aceito nesta fase.
+enum Weekday {
+  SEGUNDA
+  TERCA
+  QUARTA
+  QUINTA
+  SEXTA
+  SABADO
+  DOMINGO
 }
 
 model Membership {
@@ -237,6 +257,35 @@ model Procedure {
   updatedAt DateTime @updatedAt
 
   @@index([clinicId, active])
+}
+
+// ── Horários de funcionamento (Fase 2.6) ─────────────────────────
+
+/// Horário de uma clínica para um dia da semana.
+/// Sempre 7 registros por Clinic (um por Weekday) — o seed/UI garantem.
+/// Quando `active = false` o dia é fechado, mas opensAt/closesAt continuam
+/// preenchidos por consistência: a regex e o refine do Zod exigem sempre
+/// HH:mm válido com opensAt < closesAt, mesmo em dia fechado, pra evitar
+/// dado inconsistente persistido.
+/// A Júlia (Fase 4) lê esta tabela pra validar disponibilidade antes de
+/// propor slot ao paciente.
+model BusinessHours {
+  id       String  @id @default(cuid())
+  clinicId String
+  weekday  Weekday
+  /// formato "HH:mm" 24h, ex "08:00". Regex validada na Server Action.
+  opensAt  String
+  /// idem opensAt. Refine garante opensAt < closesAt sempre.
+  closesAt String
+  active   Boolean @default(true)
+
+  clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([clinicId, weekday])
+  @@index([clinicId])
 }
 
 // ── Pacientes (escopo MVP, expand depois) ────────────────────────

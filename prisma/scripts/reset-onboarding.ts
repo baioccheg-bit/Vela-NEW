@@ -33,7 +33,10 @@ async function main() {
 
   await prisma.$transaction([
     prisma.user.update({ where: { id: user.id }, data: { welcomedAt: null } }),
-    prisma.clinic.update({ where: { id: clinic.id }, data: { onboardingDismissedAt: null } }),
+    prisma.clinic.update({
+      where: { id: clinic.id },
+      data: { onboardingDismissedAt: null, businessHoursCustomizedAt: null },
+    }),
   ]);
 
   console.log("✓ Onboarding resetado.");

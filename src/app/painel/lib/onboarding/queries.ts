@@ -16,7 +16,8 @@ export type OnboardingState = {
  *   1. Conta criada
  *   2. Importar pacientes (CTA /painel/pacientes?import=1)
  *   3. Convidar equipe (CTA /painel/configuracoes/equipe) — ROTA NÃO EXISTE → "em breve"
- *   4. Personalizar horários (CTA /painel/configuracoes/horarios) — Fase 2.6 → "em breve"
+ *   4. Personalizar horários (CTA /painel/configuracoes/horarios) —
+ *      done quando Clinic.businessHoursCustomizedAt !== null
  *   5. Conectar WhatsApp (Fase 4) — "em breve"
  *
  * Heurística do item 2: existe pelo menos 1 Patient na clínica.
@@ -40,7 +41,10 @@ export async function getOnboardingState(): Promise<OnboardingState | null> {
     }),
     prisma.clinic.findUnique({
       where: { id: ms.clinicId },
-      select: { onboardingDismissedAt: true },
+      select: {
+        onboardingDismissedAt: true,
+        businessHoursCustomizedAt: true,
+      },
     }),
     prisma.patient.count({ where: { clinicId: ms.clinicId } }),
   ]);
@@ -66,8 +70,8 @@ export async function getOnboardingState(): Promise<OnboardingState | null> {
     {
       id: "horarios",
       label: "Personalizar horários",
-      done: false,
-      comingSoon: true,
+      done: clinic?.businessHoursCustomizedAt != null,
+      href: "/painel/configuracoes/horarios",
     },
     {
       id: "whatsapp",
