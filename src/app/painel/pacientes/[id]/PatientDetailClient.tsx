@@ -13,6 +13,7 @@ import {
 } from "@/generated/prisma/client";
 
 import { Button } from "@/components/Button";
+import { Avatar } from "../../components/Avatar";
 import { Drawer } from "../../components/Drawer";
 import { fieldInputCls } from "../../components/Field";
 import { StatusBadge } from "../../components/StatusBadge";
@@ -124,21 +125,13 @@ export function PatientDetailClient({
     });
   }
 
-  const initials = patient.name
-    .split(" ")
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join("");
-
   return (
     <div className="space-y-6 max-w-4xl">
       {/* Header */}
       <div className="rounded-xl bg-paper-0 border border-paper-3 p-6">
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-5">
           <div className="min-w-0 flex items-start gap-4">
-            <div className="w-14 h-14 rounded-full bg-paper-2 text-ink-1 flex items-center justify-center text-base font-display font-semibold shrink-0">
-              {initials}
-            </div>
+            <Avatar name={patient.name} id={patient.id} size="lg" decorative />
             <div className="min-w-0">
               <h2 className="font-display text-2xl font-semibold text-ink-0 tracking-[-0.025em] leading-tight">
                 {patient.name}

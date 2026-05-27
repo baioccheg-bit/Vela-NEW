@@ -1,5 +1,6 @@
 import { formatBRL } from "../lib/mock-data";
 import type { AppointmentWithRels } from "../lib/queries";
+import { Avatar } from "./Avatar";
 import { StatusBadge } from "./StatusBadge";
 
 const timeFmt = new Intl.DateTimeFormat("pt-BR", {
@@ -64,13 +65,13 @@ export function AppointmentsTable({ appointments }: { appointments: AppointmentW
                   </td>
                   <td className="px-6 py-3.5">
                     <div className="flex items-center gap-3">
-                      <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-display font-semibold ${
-                          isNow ? "bg-accent text-paper-0" : "bg-paper-2 text-ink-1"
-                        }`}
-                      >
-                        {ap.patient.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
-                      </div>
+                      <Avatar
+                        name={ap.patient.name}
+                        id={ap.patient.id}
+                        size="sm"
+                        variant={isNow ? "primary" : "auto"}
+                        decorative
+                      />
                       <span className="text-ink-0 font-medium">{ap.patient.name}</span>
                     </div>
                   </td>

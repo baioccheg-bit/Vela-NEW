@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import type { PatientTag } from "@/generated/prisma/client";
 
+import { Avatar } from "../components/Avatar";
 import { Drawer } from "../components/Drawer";
 import { formatBRL, formatDate } from "../lib/mock-data";
 import { createPatient } from "./actions";
@@ -186,9 +187,7 @@ export function PacientesClient({ patients }: { patients: PatientRowSerialized[]
                         href={`/painel/pacientes/${p.id}`}
                         className="flex items-center gap-3"
                       >
-                        <div className="w-9 h-9 rounded-full bg-paper-2 text-ink-1 flex items-center justify-center text-xs font-display font-semibold">
-                          {p.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
-                        </div>
+                        <Avatar name={p.name} id={p.id} size="md" decorative />
                         <div>
                           <div className="text-ink-0 font-medium">{p.name}</div>
                           <div className="text-[11px] text-ink-3 font-mono">
